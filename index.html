@@ -22,23 +22,18 @@
 
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* Screens */
 .screen{display:none;min-height:100vh;flex-direction:column}
 .screen.on{display:flex}
 
-/* Header */
 .hdr{background:var(--p);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px}
 .hdr h1{font-size:1.25rem;font-weight:700;flex:1}
 .hbk{background:rgba(255,255,255,.2);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center}
 .hact{background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 13px;border-radius:20px;cursor:pointer;font-size:.82rem;font-weight:600}
 
-/* Content */
 .cnt{padding:18px;flex:1;overflow-y:auto}
 
-/* Cards */
 .card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:18px;margin-bottom:14px}
 
-/* Buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 22px;border-radius:50px;border:none;cursor:pointer;font-size:.95rem;font-weight:600;transition:transform .1s,opacity .1s}
 .btn:active{transform:scale(.97)}
 .bp{background:var(--p);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.15)}
@@ -47,7 +42,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .bsm{padding:7px 14px;font-size:.82rem}
 .bbl{width:100%;display:flex}
 
-/* Forms */
 .fg{margin-bottom:14px}
 .fg label{display:block;font-size:.82rem;font-weight:600;margin-bottom:5px;color:var(--muted)}
 input[type=text],input[type=number],input[type=date],input[type=time],select{
@@ -57,13 +51,10 @@ input[type=text],input[type=number],input[type=date],input[type=time],select{
 }
 input:focus,select:focus{border-color:var(--p)}
 
-/* Section title */
 .stl{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
 
-/* Divider */
 .dvd{height:1px;background:#eee;margin:14px 0}
 
-/* Today banner */
 .banner{
   background:var(--p);color:#fff;
   border-radius:var(--r);padding:18px;margin-bottom:18px;
@@ -77,7 +68,6 @@ input:focus,select:focus{border-color:var(--p)}
 .banner .dstr{font-size:.85rem;opacity:.8;margin-top:3px}
 .banner .stat{margin-top:10px;font-size:.95rem;font-weight:600}
 
-/* Profile grid */
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px}
 .pcard{
   background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
@@ -88,7 +78,6 @@ input:focus,select:focus{border-color:var(--p)}
 .pav{font-size:2.8rem;margin-bottom:7px}
 .pnm{font-weight:700;font-size:.95rem}
 
-/* Task items */
 .ti{
   display:flex;align-items:center;gap:11px;
   padding:13px 14px;background:var(--card);border-radius:11px;
@@ -112,7 +101,6 @@ input:focus,select:focus{border-color:var(--p)}
   padding:5px 11px;border-radius:20px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap
 }
 
-/* Timer */
 .tdsp{font-size:3.6rem;font-weight:800;color:var(--p);text-align:center}
 .tlbl{font-size:1.1rem;font-weight:600;text-align:center;color:var(--muted);margin-bottom:6px}
 .ring-wrap{display:flex;justify-content:center;align-items:center;padding:36px 0}
@@ -122,7 +110,6 @@ input:focus,select:focus{border-color:var(--p)}
 .rfl{fill:none;stroke:var(--p);stroke-linecap:round;transition:stroke-dashoffset .4s}
 .rt{position:absolute;text-align:center}
 
-/* PIN */
 .pindots{display:flex;gap:12px;justify-content:center;margin-bottom:22px}
 .pdot{width:17px;height:17px;border-radius:50%;border:3px solid var(--p)}
 .pdot.on{background:var(--p)}
@@ -134,7 +121,6 @@ input:focus,select:focus{border-color:var(--p)}
 }
 .kbtn:active{transform:scale(.94);background:var(--pl)}
 
-/* Themes & avatars */
 .tgrid{display:flex;gap:11px;flex-wrap:wrap}
 .tsw{
   width:38px;height:38px;border-radius:50%;cursor:pointer;
@@ -149,12 +135,10 @@ input:focus,select:focus{border-color:var(--p)}
 }
 .aopt.sel{border-color:var(--p);background:var(--pl)}
 
-/* Modal */
 .mbk{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end}
 .mod{background:var(--card);border-radius:var(--r) var(--r) 0 0;padding:22px;width:100%;max-height:80vh;overflow-y:auto}
 .mtl{font-size:1.15rem;font-weight:700;margin-bottom:18px}
 
-/* Utils */
 .ec{text-align:center;padding:36px 18px;color:var(--muted)}
 .ec .ei{font-size:2.8rem;margin-bottom:10px}
 .tc{text-align:center}
@@ -167,14 +151,12 @@ input:focus,select:focus{border-color:var(--p)}
 .mt3{margin-top:22px}
 .delbtn{background:none;border:none;color:var(--bad);cursor:pointer;padding:4px 8px;border-radius:8px;font-size:1rem}
 
-/* Animations */
 @keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
 .pop{animation:popIn .3s ease-out}
 @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 .pulse{animation:bounce 1.5s infinite}
 .celebrate{font-size:1.9rem;text-align:center;margin:18px 0;animation:popIn .4s ease-out}
 
-/* Responsive */
 @media(min-width:600px){
   body{max-width:460px;margin:0 auto}
   .mbk{align-items:center}
@@ -188,14 +170,14 @@ input:focus,select:focus{border-color:var(--p)}
 <!-- HOME -->
 <div id="s-home" class="screen on">
   <div class="hdr" style="justify-content:space-between">
-    <span style="font-size:1.45rem;font-weight:800">⏰ On Time!</span>
+    <span style="font-size:1.45rem;font-weight:800">&#9200; On Time!</span>
     <button class="hact" onclick="goPin()">Parent Mode</button>
   </div>
   <div class="cnt">
     <div class="stl">Who's checking in today?</div>
     <div id="pgrid" class="pgrid"></div>
     <div id="no-kids" class="ec" style="display:none">
-      <div class="ei">👨‍👩‍👧</div>
+      <div class="ei">&#128106;</div>
       <div>No profiles yet!</div>
       <div style="font-size:.82rem;margin-top:4px">Ask a parent to set up your profile.</div>
     </div>
@@ -218,7 +200,7 @@ input:focus,select:focus{border-color:var(--p)}
     <div class="stl">Today's Responsibilities</div>
     <div id="tasklist"></div>
     <div id="no-tasks" class="ec" style="display:none">
-      <div class="ei">📋</div>
+      <div class="ei">&#128203;</div>
       <div>No tasks today!</div>
       <div style="font-size:.82rem;margin-top:4px">Ask a parent to add tasks for today.</div>
     </div>
@@ -246,10 +228,10 @@ input:focus,select:focus{border-color:var(--p)}
     <div id="t-ctrl" style="display:flex;gap:14px;margin-top:14px">
       <button class="btn bo bsm" onclick="resetTimer()">Reset</button>
       <button class="btn bp" id="t-start" onclick="toggleTimer()">Start</button>
-      <button class="btn bsm" style="background:var(--ok);color:#fff" onclick="markDone()">Done ✓</button>
+      <button class="btn bsm" style="background:var(--ok);color:#fff" onclick="markDone()">Done &#10003;</button>
     </div>
     <div id="t-done" style="display:none;text-align:center;margin-top:18px">
-      <div class="celebrate">🎉 Time's Up! 🎉</div>
+      <div class="celebrate">&#127881; Time's Up! &#127881;</div>
       <div style="font-size:1rem;color:var(--muted)">Awesome work staying on track!</div>
       <button class="btn bp mt3" onclick="go('kid')">Back to My Day</button>
     </div>
@@ -424,11 +406,10 @@ input:focus,select:focus{border-color:var(--p)}
 </div>
 
 <script>
-// ─── Constants ───────────────────────────────────────────────
-const ICONS={Homework:'📚',Reading:'📖',Music:'🎵',Sports:'⚽',Chores:'🧹','Self-Care':'🧼',Other:'⭐'};
+const ICONS={Homework:'&#128218;',Reading:'&#128214;',Music:'&#127925;',Sports:'&#9917;',Chores:'&#129529;','Self-Care':'&#129516;',Other:'&#11088;'};
 const THEMES=['purple','blue','green','orange','pink','red','teal'];
 const TCOLORS={purple:'#6c63ff',blue:'#2196f3',green:'#4caf50',orange:'#ff9800',pink:'#e91e8c',red:'#f44336',teal:'#009688'};
-const AVATARS=['🦄','🐶','🐱','🦊','🐸','🐼','🐯','🐺','🦁','🦋','🌟','🚀','🎮','🎨','🏆','🌈','🍕','⚡'];
+const AVATARS=['\u{1F984}','\u{1F436}','\u{1F431}','\u{1F98A}','\u{1F438}','\u{1F43C}','\u{1F42F}','\u{1F43A}','\u{1F981}','\u{1F98B}','\u{1F31F}','\u{1F680}','\u{1F3AE}','\u{1F3A8}','\u{1F3C6}','\u{1F308}','\u{1F355}','⚡'];
 
 function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
 
@@ -450,7 +431,6 @@ const DEFAULT_ACTS=[
   {id:uid(),name:'Shower / Bath',category:'Self-Care',duration:15},
 ];
 
-// ─── Database ────────────────────────────────────────────────
 function loadDB(){
   try{const r=localStorage.getItem('ontime');if(r)return JSON.parse(r)}catch(e){}
   return{pin:'1234',kids:[],activities:DEFAULT_ACTS,schedules:{}};
@@ -458,13 +438,11 @@ function loadDB(){
 function saveDB(){localStorage.setItem('ontime',JSON.stringify(db))}
 let db=loadDB();
 
-// ─── State ───────────────────────────────────────────────────
 let kidId=null,pinBuf='',tSec=0,tTotal=0,tRunning=false,tIv=null;
 let curTimerTask=null,pendActId=null,editActId=null,editKidId=null;
 let schedKid=null,schedDate=null;
 let addKidAv=AVATARS[0],addKidTheme='purple';
 
-// ─── Audio ───────────────────────────────────────────────────
 let actx=null;
 function getActx(){return actx||(actx=new(window.AudioContext||window.webkitAudioContext)())}
 function beep(f=880,d=.15,v=.35){
@@ -478,7 +456,6 @@ function beep(f=880,d=.15,v=.35){
 function fanfare(){beep(523,.15,.3);setTimeout(()=>beep(659,.15,.3),160);setTimeout(()=>beep(784,.3,.4),320)}
 function warn3(){beep(660,.1,.3);setTimeout(()=>beep(660,.1,.3),210);setTimeout(()=>beep(660,.1,.3),420)}
 
-// ─── Navigation ──────────────────────────────────────────────
 function go(scr){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById('s-'+scr).classList.add('on');
@@ -488,11 +465,9 @@ function go(scr){
   else if(scr==='sched')renderSched();
 }
 
-// ─── Theme helpers ───────────────────────────────────────────
 function applyTheme(el,t){el.setAttribute('data-theme',t||'purple')}
 function tc(t){return TCOLORS[t]||'#6c63ff'}
 
-// ─── Home ────────────────────────────────────────────────────
 function renderHome(){
   const g=document.getElementById('pgrid'),n=document.getElementById('no-kids');
   g.innerHTML='';
@@ -502,13 +477,12 @@ function renderHome(){
     const c=document.createElement('div');
     c.className='pcard pop';
     c.style.setProperty('--p',tc(k.theme));
-    c.innerHTML=`<div class="pav">${k.avatar||'🌟'}</div><div class="pnm">${k.name}</div>`;
+    c.innerHTML='<div class="pav">'+k.avatar+'</div><div class="pnm">'+k.name+'</div>';
     c.onclick=()=>{kidId=k.id;beep(660,.08);go('kid')};
     g.appendChild(c);
   });
 }
 
-// ─── Kid Dashboard ───────────────────────────────────────────
 function today(){return new Date().toISOString().slice(0,10)}
 
 function renderKid(){
@@ -516,49 +490,41 @@ function renderKid(){
   if(!k){go('home');return}
   applyTheme(document.getElementById('s-kid'),k.theme);
   document.getElementById('kid-hdr').textContent=k.name+"'s Day";
-
   const hr=new Date().getHours();
-  const g=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
-  document.getElementById('greet').textContent=`${g}, ${k.name}! 👋`;
+  const gr=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+  document.getElementById('greet').textContent=gr+', '+k.name+'! 👋';
   document.getElementById('dstr').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-
-  const key=`${kidId}-${today()}`;
+  const key=kidId+'-'+today();
   const tasks=db.schedules[key]||[];
   const done=tasks.filter(t=>t.completed).length;
   document.getElementById('stat').textContent=
     !tasks.length?'No tasks yet today.':
-    done===tasks.length?`🎉 All ${tasks.length} tasks complete! Amazing!`:
-    `${done} of ${tasks.length} done`;
-
+    done===tasks.length?'🎉 All '+tasks.length+' tasks complete! Amazing!':
+    done+' of '+tasks.length+' done';
   const list=document.getElementById('tasklist'),nm=document.getElementById('no-tasks');
   list.innerHTML='';
   if(!tasks.length){nm.style.display='block';return}
   nm.style.display='none';
-
   tasks.forEach((t,i)=>{
     const a=db.activities.find(x=>x.id===t.activityId);
     if(!a)return;
     const icon=ICONS[a.category]||'⭐';
     const dur=t.duration||a.duration;
-    const tstr=t.startTime?`${t.startTime} · `:'';
+    const tstr=t.startTime?t.startTime+' · ':'';
     const el=document.createElement('div');
     el.className='ti'+(t.completed?' done':'');
-    el.innerHTML=`
-      <div class="tck">${t.completed?'✓':''}</div>
-      <div style="font-size:1.35rem">${icon}</div>
-      <div class="tif">
-        <div class="tnm">${a.name}</div>
-        <div class="tmt">${tstr}${dur} min</div>
-      </div>
-      ${!t.completed?`<button class="ttrb" onclick="openTimer(${i},event)">▶ Timer</button>`:''}
-    `;
+    el.innerHTML=
+      '<div class="tck">'+(t.completed?'&#10003;':'')+'</div>'+
+      '<div style="font-size:1.35rem">'+icon+'</div>'+
+      '<div class="tif"><div class="tnm">'+a.name+'</div><div class="tmt">'+tstr+dur+' min</div></div>'+
+      (!t.completed?'<button class="ttrb" onclick="openTimer('+i+',event)">&#9654; Timer</button>':'');
     el.onclick=e=>{if(!e.target.closest('.ttrb'))toggleDone(i)};
     list.appendChild(el);
   });
 }
 
 function toggleDone(i){
-  const key=`${kidId}-${today()}`;
+  const key=kidId+'-'+today();
   if(!db.schedules[key])return;
   const t=db.schedules[key][i];
   t.completed=!t.completed;
@@ -566,30 +532,26 @@ function toggleDone(i){
   saveDB();renderKid();
 }
 
-// ─── Timer ───────────────────────────────────────────────────
-const CIRC=2*Math.PI*90; // ~565
+const CIRC=2*Math.PI*90;
 
 function openTimer(i,e){
   e&&e.stopPropagation();
-  const key=`${kidId}-${today()}`;
-  const t=db.schedules[key]?.[i];
+  const key=kidId+'-'+today();
+  const t=db.schedules[key]&&db.schedules[key][i];
   if(!t)return;
   const a=db.activities.find(x=>x.id===t.activityId);
   if(!a)return;
-
   curTimerTask={kidId,date:today(),idx:i};
   tTotal=tSec=(t.duration||a.duration)*60;
   tRunning=false;
   if(tIv){clearInterval(tIv);tIv=null}
-
   document.getElementById('t-name').textContent=a.name;
-  document.getElementById('t-lbl').textContent=`${ICONS[a.category]||'⭐'} ${t.duration||a.duration} minutes`;
+  document.getElementById('t-lbl').textContent=(ICONS[a.category]||'⭐')+' '+(t.duration||a.duration)+' minutes';
   document.getElementById('t-start').textContent='Start';
   document.getElementById('t-done').style.display='none';
   document.getElementById('t-ctrl').style.display='flex';
-
   const k=db.kids.find(x=>x.id===kidId);
-  applyTheme(document.getElementById('s-timer'),k?.theme);
+  applyTheme(document.getElementById('s-timer'),k&&k.theme);
   updateTDisp();
   go('timer');
 }
@@ -597,7 +559,7 @@ function openTimer(i,e){
 function updateTDisp(){
   const m=String(Math.floor(tSec/60)).padStart(2,'0');
   const s=String(tSec%60).padStart(2,'0');
-  document.getElementById('tdsp').textContent=`${m}:${s}`;
+  document.getElementById('tdsp').textContent=m+':'+s;
   const offset=CIRC*(1-(tTotal?tSec/tTotal:0));
   const r=document.getElementById('tring');
   r.style.strokeDasharray=CIRC;
@@ -628,9 +590,9 @@ function timerDone(){
   document.getElementById('t-ctrl').style.display='none';
   document.getElementById('t-done').style.display='block';
   if(curTimerTask){
-    const{kidId:k,date:d,idx:i}=curTimerTask;
-    const key=`${k}-${d}`;
-    if(db.schedules[key]?.[i]){db.schedules[key][i].completed=true;saveDB()}
+    const k=curTimerTask.kidId,d=curTimerTask.date,i=curTimerTask.idx;
+    const key=k+'-'+d;
+    if(db.schedules[key]&&db.schedules[key][i]){db.schedules[key][i].completed=true;saveDB()}
   }
 }
 
@@ -642,15 +604,14 @@ function resetTimer(){
 
 function markDone(){
   if(curTimerTask){
-    const{kidId:k,date:d,idx:i}=curTimerTask;
-    const key=`${k}-${d}`;
-    if(db.schedules[key]?.[i]){db.schedules[key][i].completed=true;saveDB()}
+    const k=curTimerTask.kidId,d=curTimerTask.date,i=curTimerTask.idx;
+    const key=k+'-'+d;
+    if(db.schedules[key]&&db.schedules[key][i]){db.schedules[key][i].completed=true;saveDB()}
   }
   clearInterval(tIv);tIv=null;
   fanfare();go('kid');
 }
 
-// ─── PIN ─────────────────────────────────────────────────────
 function goPin(){pinBuf='';updPin();document.getElementById('pin-err').textContent='';go('pin')}
 
 function pk(k){
@@ -663,7 +624,7 @@ function pk(k){
 }
 
 function updPin(){
-  for(let i=0;i<4;i++)document.getElementById(`pd${i}`).classList.toggle('on',i<pinBuf.length);
+  for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('on',i<pinBuf.length);
 }
 
 function checkPin(){
@@ -671,7 +632,6 @@ function checkPin(){
   else{document.getElementById('pin-err').textContent='Wrong PIN. Try again.';pinBuf='';updPin()}
 }
 
-// ─── Parent Dashboard ────────────────────────────────────────
 function renderParent(){
   renderPKids();renderPActs();renderSBKids();
   document.getElementById('sb-date').value=today();
@@ -683,11 +643,10 @@ function renderPKids(){
   if(!db.kids.length){el.innerHTML='<div class="ec" style="padding:20px 0"><div>No kids yet.</div></div>';return}
   db.kids.forEach(k=>{
     const d=document.createElement('div');d.className='ti';
-    d.innerHTML=`
-      <div style="font-size:1.5rem">${k.avatar||'🌟'}</div>
-      <div class="tif"><div class="tnm">${k.name}</div><div class="tmt">Theme: ${k.theme}</div></div>
-      <button class="delbtn" onclick="delKid('${k.id}',event)">🗑</button>
-    `;
+    d.innerHTML=
+      '<div style="font-size:1.5rem">'+k.avatar+'</div>'+
+      '<div class="tif"><div class="tnm">'+k.name+'</div><div class="tmt">Theme: '+k.theme+'</div></div>'+
+      '<button class="delbtn" onclick="delKid(\''+k.id+'\',event)">&#128465;</button>';
     el.appendChild(d);
   });
 }
@@ -700,13 +659,12 @@ function renderPActs(){
   db.activities.forEach(a=>{(grps[a.category]=grps[a.category]||[]).push(a)});
   Object.entries(grps).forEach(([cat,acts])=>{
     const s=document.createElement('div');s.style.marginBottom='10px';
-    s.innerHTML=`<div class="stl" style="margin-bottom:5px">${ICONS[cat]||'⭐'} ${cat}</div>`;
+    s.innerHTML='<div class="stl" style="margin-bottom:5px">'+(ICONS[cat]||'⭐')+' '+cat+'</div>';
     acts.forEach(a=>{
       const d=document.createElement('div');d.className='ti';d.style.marginBottom='6px';
-      d.innerHTML=`
-        <div class="tif"><div class="tnm">${a.name}</div><div class="tmt">${a.duration} min</div></div>
-        <button class="delbtn" onclick="delAct('${a.id}',event)">🗑</button>
-      `;
+      d.innerHTML=
+        '<div class="tif"><div class="tnm">'+a.name+'</div><div class="tmt">'+a.duration+' min</div></div>'+
+        '<button class="delbtn" onclick="delAct(\''+a.id+'\',event)">&#128465;</button>';
       s.appendChild(d);
     });
     el.appendChild(s);
@@ -725,16 +683,14 @@ function openSchedule(){
   if(!schedKid||!schedDate)return;
   const k=db.kids.find(x=>x.id===schedKid);
   const ds=new Date(schedDate+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  document.getElementById('sched-hdr').textContent=`${k?.name} · ${ds}`;
+  document.getElementById('sched-hdr').textContent=(k?k.name:'?')+' · '+ds;
   go('sched');
 }
 
-// ─── Schedule Builder ────────────────────────────────────────
 function renderSched(){
-  const key=`${schedKid}-${schedDate}`;
+  const key=schedKid+'-'+schedDate;
   if(!db.schedules[key])db.schedules[key]=[];
   const tasks=db.schedules[key];
-
   const sl=document.getElementById('sched-list');
   sl.innerHTML='';
   if(!tasks.length){
@@ -743,30 +699,24 @@ function renderSched(){
     tasks.forEach((t,i)=>{
       const a=db.activities.find(x=>x.id===t.activityId);if(!a)return;
       const d=document.createElement('div');d.className='ti';d.style.marginBottom='8px';
-      d.innerHTML=`
-        <div style="font-size:1.25rem">${ICONS[a.category]||'⭐'}</div>
-        <div class="tif">
-          <div class="tnm">${a.name}</div>
-          <div class="tmt">${t.startTime?t.startTime+' · ':''}${t.duration} min</div>
-        </div>
-        <button class="delbtn" onclick="removeSchedTask(${i},event)">🗑</button>
-      `;
+      d.innerHTML=
+        '<div style="font-size:1.25rem">'+(ICONS[a.category]||'⭐')+'</div>'+
+        '<div class="tif"><div class="tnm">'+a.name+'</div><div class="tmt">'+(t.startTime?t.startTime+' · ':'')+t.duration+' min</div></div>'+
+        '<button class="delbtn" onclick="removeSchedTask('+i+',event)">&#128465;</button>';
       sl.appendChild(d);
     });
   }
-
   const ll=document.getElementById('lib-list');ll.innerHTML='';
   const grps={};
   db.activities.forEach(a=>{(grps[a.category]=grps[a.category]||[]).push(a)});
   Object.entries(grps).forEach(([cat,acts])=>{
     const s=document.createElement('div');s.style.marginBottom='10px';
-    s.innerHTML=`<div class="stl" style="margin-bottom:5px">${ICONS[cat]||'⭐'} ${cat}</div>`;
+    s.innerHTML='<div class="stl" style="margin-bottom:5px">'+(ICONS[cat]||'⭐')+' '+cat+'</div>';
     acts.forEach(a=>{
       const d=document.createElement('div');d.className='ti';d.style.marginBottom='6px';
-      d.innerHTML=`
-        <div class="tif"><div class="tnm">${a.name}</div><div class="tmt">${a.duration} min</div></div>
-        <button class="btn bp bsm" onclick="openSAdd('${a.id}',event)">+ Add</button>
-      `;
+      d.innerHTML=
+        '<div class="tif"><div class="tnm">'+a.name+'</div><div class="tmt">'+a.duration+' min</div></div>'+
+        '<button class="btn bp bsm" onclick="openSAdd(\''+a.id+'\',event)">+ Add</button>';
       s.appendChild(d);
     });
     ll.appendChild(s);
@@ -776,7 +726,7 @@ function renderSched(){
 function openSAdd(actId,e){
   e&&e.stopPropagation();pendActId=actId;
   const a=db.activities.find(x=>x.id===actId);
-  document.getElementById('sadd-name').textContent=`${ICONS[a.category]||'⭐'} ${a.name}`;
+  document.getElementById('sadd-name').textContent=(ICONS[a.category]||'⭐')+' '+a.name;
   document.getElementById('sadd-dur').value=a.duration;
   document.getElementById('sadd-time').value='';
   openM('m-sadd');
@@ -785,7 +735,7 @@ function openSAdd(actId,e){
 function addToSched(){
   const dur=parseInt(document.getElementById('sadd-dur').value)||20;
   const time=document.getElementById('sadd-time').value;
-  const key=`${schedKid}-${schedDate}`;
+  const key=schedKid+'-'+schedDate;
   if(!db.schedules[key])db.schedules[key]=[];
   db.schedules[key].push({activityId:pendActId,duration:dur,startTime:time||null,completed:false});
   saveDB();closeM('m-sadd');renderSched();beep(523,.1);
@@ -793,11 +743,10 @@ function addToSched(){
 
 function removeSchedTask(i,e){
   e&&e.stopPropagation();
-  const key=`${schedKid}-${schedDate}`;
+  const key=schedKid+'-'+schedDate;
   db.schedules[key].splice(i,1);saveDB();renderSched();
 }
 
-// ─── Kid CRUD ────────────────────────────────────────────────
 function openAddKid(){
   editKidId=null;addKidAv=AVATARS[0];addKidTheme='purple';
   document.getElementById('kid-name').value='';
@@ -827,7 +776,6 @@ function delKid(id,e){
   saveDB();renderParent();
 }
 
-// ─── Activity CRUD ───────────────────────────────────────────
 function openAddAct(){
   editActId=null;
   document.getElementById('act-name').value='';
@@ -856,7 +804,6 @@ function delAct(id,e){
   saveDB();renderParent();
 }
 
-// ─── Parent Settings ─────────────────────────────────────────
 function changePin(){
   const cur=document.getElementById('cp-cur').value.trim();
   const nw=document.getElementById('cp-new').value.trim();
@@ -868,11 +815,9 @@ function changePin(){
   document.getElementById('cp-cur').value='';document.getElementById('cp-new').value='';
 }
 
-// ─── Kid Settings ────────────────────────────────────────────
 function kidSettings(){
   const k=db.kids.find(x=>x.id===kidId);if(!k)return;
   applyTheme(document.getElementById('s-ksettings'),k.theme);
-
   buildThemeGrid('ks-themes',()=>k.theme,(v)=>{
     k.theme=v;saveDB();
     applyTheme(document.getElementById('s-ksettings'),v);
@@ -882,7 +827,6 @@ function kidSettings(){
   go('ksettings');
 }
 
-// ─── Picker Builders ─────────────────────────────────────────
 function buildThemeGrid(containerId,getter,setter){
   const el=document.getElementById(containerId);el.innerHTML='';
   THEMES.forEach(t=>{
@@ -912,7 +856,6 @@ function buildAvatarGrid(containerId,getter,setter){
   });
 }
 
-// ─── Modal helpers ───────────────────────────────────────────
 function openM(id){document.getElementById(id).style.display='flex'}
 function closeM(id){document.getElementById(id).style.display='none'}
 
@@ -920,8 +863,7 @@ document.querySelectorAll('.mbk').forEach(b=>
   b.addEventListener('click',e=>{if(e.target===b)b.style.display='none'})
 );
 
-// ─── Boot ────────────────────────────────────────────────────
 renderHome();
-</script>
+<\/script>
 </body>
 </html>
