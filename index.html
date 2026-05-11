@@ -170,14 +170,14 @@ input:focus,select:focus{border-color:var(--p)}
 <!-- HOME -->
 <div id="s-home" class="screen on">
   <div class="hdr" style="justify-content:space-between">
-    <span style="font-size:1.45rem;font-weight:800">&#9200; On Time!</span>
+    <span style="font-size:1.45rem;font-weight:800">⏰ On Time!</span>
     <button class="hact" onclick="goPin()">Parent Mode</button>
   </div>
   <div class="cnt">
     <div class="stl">Who's checking in today?</div>
     <div id="pgrid" class="pgrid"></div>
     <div id="no-kids" class="ec" style="display:none">
-      <div class="ei">&#128106;</div>
+      <div class="ei">👨‍👩‍👧</div>
       <div>No profiles yet!</div>
       <div style="font-size:.82rem;margin-top:4px">Ask a parent to set up your profile.</div>
     </div>
@@ -187,9 +187,9 @@ input:focus,select:focus{border-color:var(--p)}
 <!-- KID DASHBOARD -->
 <div id="s-kid" class="screen">
   <div class="hdr">
-    <button class="hbk" onclick="go('home')">&#8592;</button>
+    <button class="hbk" onclick="go('home')">←</button>
     <h1 id="kid-hdr">My Day</h1>
-    <button class="hact" onclick="kidSettings()">&#9881;</button>
+    <button class="hact" onclick="kidSettings()">⚙️</button>
   </div>
   <div class="cnt">
     <div id="banner" class="banner">
@@ -200,7 +200,7 @@ input:focus,select:focus{border-color:var(--p)}
     <div class="stl">Today's Responsibilities</div>
     <div id="tasklist"></div>
     <div id="no-tasks" class="ec" style="display:none">
-      <div class="ei">&#128203;</div>
+      <div class="ei">📋</div>
       <div>No tasks today!</div>
       <div style="font-size:.82rem;margin-top:4px">Ask a parent to add tasks for today.</div>
     </div>
@@ -210,7 +210,7 @@ input:focus,select:focus{border-color:var(--p)}
 <!-- TIMER -->
 <div id="s-timer" class="screen">
   <div class="hdr">
-    <button class="hbk" onclick="go('kid')">&#8592;</button>
+    <button class="hbk" onclick="go('kid')">←</button>
     <h1 id="t-name">Timer</h1>
   </div>
   <div class="cnt" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1">
@@ -228,10 +228,10 @@ input:focus,select:focus{border-color:var(--p)}
     <div id="t-ctrl" style="display:flex;gap:14px;margin-top:14px">
       <button class="btn bo bsm" onclick="resetTimer()">Reset</button>
       <button class="btn bp" id="t-start" onclick="toggleTimer()">Start</button>
-      <button class="btn bsm" style="background:var(--ok);color:#fff" onclick="markDone()">Done &#10003;</button>
+      <button class="btn bsm" style="background:var(--ok);color:#fff" onclick="markDone()">Done ✓</button>
     </div>
     <div id="t-done" style="display:none;text-align:center;margin-top:18px">
-      <div class="celebrate">&#127881; Time's Up! &#127881;</div>
+      <div class="celebrate">🎉 Time's Up! 🎉</div>
       <div style="font-size:1rem;color:var(--muted)">Awesome work staying on track!</div>
       <button class="btn bp mt3" onclick="go('kid')">Back to My Day</button>
     </div>
@@ -241,7 +241,7 @@ input:focus,select:focus{border-color:var(--p)}
 <!-- PARENT PIN -->
 <div id="s-pin" class="screen">
   <div class="hdr">
-    <button class="hbk" onclick="go('home')">&#8592;</button>
+    <button class="hbk" onclick="go('home')">←</button>
     <h1>Parent Mode</h1>
   </div>
   <div class="cnt" style="display:flex;flex-direction:column;align-items:center;padding-top:38px">
@@ -265,7 +265,7 @@ input:focus,select:focus{border-color:var(--p)}
       <button class="kbtn" onclick="pk('9')">9</button>
       <button class="kbtn" onclick="pk('C')" style="font-size:.9rem">Clear</button>
       <button class="kbtn" onclick="pk('0')">0</button>
-      <button class="kbtn" onclick="pk('X')" style="font-size:.9rem">&#9003;</button>
+      <button class="kbtn" onclick="pk('X')" style="font-size:.9rem">⌫</button>
     </div>
   </div>
 </div>
@@ -273,9 +273,9 @@ input:focus,select:focus{border-color:var(--p)}
 <!-- PARENT DASHBOARD -->
 <div id="s-parent" class="screen">
   <div class="hdr">
-    <button class="hbk" onclick="go('home')">&#8592;</button>
+    <button class="hbk" onclick="go('home')">←</button>
     <h1>Parent Dashboard</h1>
-    <button class="hact" onclick="go('psettings')">&#9881;</button>
+    <button class="hact" onclick="go('psettings')">⚙️</button>
   </div>
   <div class="cnt">
     <div class="fb"><div class="stl" style="margin-bottom:0">Profiles</div>
@@ -292,14 +292,14 @@ input:focus,select:focus{border-color:var(--p)}
     <div style="font-size:.88rem;color:var(--muted);margin-bottom:11px">Pick a kid &amp; date, then choose tasks from the library.</div>
     <div class="fg"><label>Kid</label><select id="sb-kid"></select></div>
     <div class="fg"><label>Date</label><input type="date" id="sb-date"></div>
-    <button class="btn bp bbl" onclick="openSchedule()">Open Schedule Builder &#8594;</button>
+    <button class="btn bp bbl" onclick="openSchedule()">Open Schedule Builder →</button>
   </div>
 </div>
 
 <!-- SCHEDULE BUILDER -->
 <div id="s-sched" class="screen">
   <div class="hdr">
-    <button class="hbk" onclick="go('parent')">&#8592;</button>
+    <button class="hbk" onclick="go('parent')">←</button>
     <h1 id="sched-hdr">Schedule</h1>
   </div>
   <div class="cnt">
@@ -314,7 +314,7 @@ input:focus,select:focus{border-color:var(--p)}
 <!-- PARENT SETTINGS -->
 <div id="s-psettings" class="screen">
   <div class="hdr">
-    <button class="hbk" onclick="go('parent')">&#8592;</button>
+    <button class="hbk" onclick="go('parent')">←</button>
     <h1>Settings</h1>
   </div>
   <div class="cnt">
@@ -338,7 +338,7 @@ input:focus,select:focus{border-color:var(--p)}
 <!-- KID SETTINGS -->
 <div id="s-ksettings" class="screen">
   <div class="hdr">
-    <button class="hbk" onclick="go('kid')">&#8592;</button>
+    <button class="hbk" onclick="go('kid')">←</button>
     <h1>My Profile</h1>
   </div>
   <div class="cnt">
@@ -406,10 +406,10 @@ input:focus,select:focus{border-color:var(--p)}
 </div>
 
 <script>
-const ICONS={Homework:'&#128218;',Reading:'&#128214;',Music:'&#127925;',Sports:'&#9917;',Chores:'&#129529;','Self-Care':'&#129516;',Other:'&#11088;'};
+const ICONS={Homework:'📚',Reading:'📖',Music:'🎵',Sports:'⚽',Chores:'🧹','Self-Care':'🧼',Other:'⭐'};
 const THEMES=['purple','blue','green','orange','pink','red','teal'];
 const TCOLORS={purple:'#6c63ff',blue:'#2196f3',green:'#4caf50',orange:'#ff9800',pink:'#e91e8c',red:'#f44336',teal:'#009688'};
-const AVATARS=['\u{1F984}','\u{1F436}','\u{1F431}','\u{1F98A}','\u{1F438}','\u{1F43C}','\u{1F42F}','\u{1F43A}','\u{1F981}','\u{1F98B}','\u{1F31F}','\u{1F680}','\u{1F3AE}','\u{1F3A8}','\u{1F3C6}','\u{1F308}','\u{1F355}','⚡'];
+const AVATARS=['🦄','🐶','🐱','🦊','🐸','🐼','🐯','🐺','🦁','🦋','🌟','🚀','🎮','🎨','🏆','🌈','🍕','⚡'];
 
 function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
 
@@ -477,7 +477,7 @@ function renderHome(){
     const c=document.createElement('div');
     c.className='pcard pop';
     c.style.setProperty('--p',tc(k.theme));
-    c.innerHTML='<div class="pav">'+k.avatar+'</div><div class="pnm">'+k.name+'</div>';
+    c.innerHTML=`<div class="pav">${k.avatar||'🌟'}</div><div class="pnm">${k.name}</div>`;
     c.onclick=()=>{kidId=k.id;beep(660,.08);go('kid')};
     g.appendChild(c);
   });
@@ -492,15 +492,15 @@ function renderKid(){
   document.getElementById('kid-hdr').textContent=k.name+"'s Day";
   const hr=new Date().getHours();
   const gr=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
-  document.getElementById('greet').textContent=gr+', '+k.name+'! 👋';
+  document.getElementById('greet').textContent=`${gr}, ${k.name}! 👋`;
   document.getElementById('dstr').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  const key=kidId+'-'+today();
+  const key=`${kidId}-${today()}`;
   const tasks=db.schedules[key]||[];
   const done=tasks.filter(t=>t.completed).length;
   document.getElementById('stat').textContent=
     !tasks.length?'No tasks yet today.':
-    done===tasks.length?'🎉 All '+tasks.length+' tasks complete! Amazing!':
-    done+' of '+tasks.length+' done';
+    done===tasks.length?`🎉 All ${tasks.length} tasks complete! Amazing!`:
+    `${done} of ${tasks.length} done`;
   const list=document.getElementById('tasklist'),nm=document.getElementById('no-tasks');
   list.innerHTML='';
   if(!tasks.length){nm.style.display='block';return}
@@ -510,21 +510,25 @@ function renderKid(){
     if(!a)return;
     const icon=ICONS[a.category]||'⭐';
     const dur=t.duration||a.duration;
-    const tstr=t.startTime?t.startTime+' · ':'';
+    const tstr=t.startTime?`${t.startTime} · `:'';
     const el=document.createElement('div');
     el.className='ti'+(t.completed?' done':'');
-    el.innerHTML=
-      '<div class="tck">'+(t.completed?'&#10003;':'')+'</div>'+
-      '<div style="font-size:1.35rem">'+icon+'</div>'+
-      '<div class="tif"><div class="tnm">'+a.name+'</div><div class="tmt">'+tstr+dur+' min</div></div>'+
-      (!t.completed?'<button class="ttrb" onclick="openTimer('+i+',event)">&#9654; Timer</button>':'');
+    el.innerHTML=`
+      <div class="tck">${t.completed?'✓':''}</div>
+      <div style="font-size:1.35rem">${icon}</div>
+      <div class="tif">
+        <div class="tnm">${a.name}</div>
+        <div class="tmt">${tstr}${dur} min</div>
+      </div>
+      ${!t.completed?`<button class="ttrb" onclick="openTimer(${i},event)">▶ Timer</button>`:''}
+    `;
     el.onclick=e=>{if(!e.target.closest('.ttrb'))toggleDone(i)};
     list.appendChild(el);
   });
 }
 
 function toggleDone(i){
-  const key=kidId+'-'+today();
+  const key=`${kidId}-${today()}`;
   if(!db.schedules[key])return;
   const t=db.schedules[key][i];
   t.completed=!t.completed;
@@ -536,8 +540,8 @@ const CIRC=2*Math.PI*90;
 
 function openTimer(i,e){
   e&&e.stopPropagation();
-  const key=kidId+'-'+today();
-  const t=db.schedules[key]&&db.schedules[key][i];
+  const key=`${kidId}-${today()}`;
+  const t=db.schedules[key]?.[i];
   if(!t)return;
   const a=db.activities.find(x=>x.id===t.activityId);
   if(!a)return;
@@ -546,12 +550,12 @@ function openTimer(i,e){
   tRunning=false;
   if(tIv){clearInterval(tIv);tIv=null}
   document.getElementById('t-name').textContent=a.name;
-  document.getElementById('t-lbl').textContent=(ICONS[a.category]||'⭐')+' '+(t.duration||a.duration)+' minutes';
+  document.getElementById('t-lbl').textContent=`${ICONS[a.category]||'⭐'} ${t.duration||a.duration} minutes`;
   document.getElementById('t-start').textContent='Start';
   document.getElementById('t-done').style.display='none';
   document.getElementById('t-ctrl').style.display='flex';
   const k=db.kids.find(x=>x.id===kidId);
-  applyTheme(document.getElementById('s-timer'),k&&k.theme);
+  applyTheme(document.getElementById('s-timer'),k?.theme);
   updateTDisp();
   go('timer');
 }
@@ -559,7 +563,7 @@ function openTimer(i,e){
 function updateTDisp(){
   const m=String(Math.floor(tSec/60)).padStart(2,'0');
   const s=String(tSec%60).padStart(2,'0');
-  document.getElementById('tdsp').textContent=m+':'+s;
+  document.getElementById('tdsp').textContent=`${m}:${s}`;
   const offset=CIRC*(1-(tTotal?tSec/tTotal:0));
   const r=document.getElementById('tring');
   r.style.strokeDasharray=CIRC;
@@ -590,9 +594,9 @@ function timerDone(){
   document.getElementById('t-ctrl').style.display='none';
   document.getElementById('t-done').style.display='block';
   if(curTimerTask){
-    const k=curTimerTask.kidId,d=curTimerTask.date,i=curTimerTask.idx;
-    const key=k+'-'+d;
-    if(db.schedules[key]&&db.schedules[key][i]){db.schedules[key][i].completed=true;saveDB()}
+    const{kidId:k,date:d,idx:i}=curTimerTask;
+    const key=`${k}-${d}`;
+    if(db.schedules[key]?.[i]){db.schedules[key][i].completed=true;saveDB()}
   }
 }
 
@@ -604,9 +608,9 @@ function resetTimer(){
 
 function markDone(){
   if(curTimerTask){
-    const k=curTimerTask.kidId,d=curTimerTask.date,i=curTimerTask.idx;
-    const key=k+'-'+d;
-    if(db.schedules[key]&&db.schedules[key][i]){db.schedules[key][i].completed=true;saveDB()}
+    const{kidId:k,date:d,idx:i}=curTimerTask;
+    const key=`${k}-${d}`;
+    if(db.schedules[key]?.[i]){db.schedules[key][i].completed=true;saveDB()}
   }
   clearInterval(tIv);tIv=null;
   fanfare();go('kid');
@@ -624,7 +628,7 @@ function pk(k){
 }
 
 function updPin(){
-  for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('on',i<pinBuf.length);
+  for(let i=0;i<4;i++)document.getElementById(`pd${i}`).classList.toggle('on',i<pinBuf.length);
 }
 
 function checkPin(){
@@ -643,10 +647,11 @@ function renderPKids(){
   if(!db.kids.length){el.innerHTML='<div class="ec" style="padding:20px 0"><div>No kids yet.</div></div>';return}
   db.kids.forEach(k=>{
     const d=document.createElement('div');d.className='ti';
-    d.innerHTML=
-      '<div style="font-size:1.5rem">'+k.avatar+'</div>'+
-      '<div class="tif"><div class="tnm">'+k.name+'</div><div class="tmt">Theme: '+k.theme+'</div></div>'+
-      '<button class="delbtn" onclick="delKid(\''+k.id+'\',event)">&#128465;</button>';
+    d.innerHTML=`
+      <div style="font-size:1.5rem">${k.avatar||'🌟'}</div>
+      <div class="tif"><div class="tnm">${k.name}</div><div class="tmt">Theme: ${k.theme}</div></div>
+      <button class="delbtn" onclick="delKid('${k.id}',event)">🗑</button>
+    `;
     el.appendChild(d);
   });
 }
@@ -659,12 +664,13 @@ function renderPActs(){
   db.activities.forEach(a=>{(grps[a.category]=grps[a.category]||[]).push(a)});
   Object.entries(grps).forEach(([cat,acts])=>{
     const s=document.createElement('div');s.style.marginBottom='10px';
-    s.innerHTML='<div class="stl" style="margin-bottom:5px">'+(ICONS[cat]||'⭐')+' '+cat+'</div>';
+    s.innerHTML=`<div class="stl" style="margin-bottom:5px">${ICONS[cat]||'⭐'} ${cat}</div>`;
     acts.forEach(a=>{
       const d=document.createElement('div');d.className='ti';d.style.marginBottom='6px';
-      d.innerHTML=
-        '<div class="tif"><div class="tnm">'+a.name+'</div><div class="tmt">'+a.duration+' min</div></div>'+
-        '<button class="delbtn" onclick="delAct(\''+a.id+'\',event)">&#128465;</button>';
+      d.innerHTML=`
+        <div class="tif"><div class="tnm">${a.name}</div><div class="tmt">${a.duration} min</div></div>
+        <button class="delbtn" onclick="delAct('${a.id}',event)">🗑</button>
+      `;
       s.appendChild(d);
     });
     el.appendChild(s);
@@ -683,12 +689,12 @@ function openSchedule(){
   if(!schedKid||!schedDate)return;
   const k=db.kids.find(x=>x.id===schedKid);
   const ds=new Date(schedDate+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  document.getElementById('sched-hdr').textContent=(k?k.name:'?')+' · '+ds;
+  document.getElementById('sched-hdr').textContent=`${k?.name} · ${ds}`;
   go('sched');
 }
 
 function renderSched(){
-  const key=schedKid+'-'+schedDate;
+  const key=`${schedKid}-${schedDate}`;
   if(!db.schedules[key])db.schedules[key]=[];
   const tasks=db.schedules[key];
   const sl=document.getElementById('sched-list');
@@ -699,10 +705,14 @@ function renderSched(){
     tasks.forEach((t,i)=>{
       const a=db.activities.find(x=>x.id===t.activityId);if(!a)return;
       const d=document.createElement('div');d.className='ti';d.style.marginBottom='8px';
-      d.innerHTML=
-        '<div style="font-size:1.25rem">'+(ICONS[a.category]||'⭐')+'</div>'+
-        '<div class="tif"><div class="tnm">'+a.name+'</div><div class="tmt">'+(t.startTime?t.startTime+' · ':'')+t.duration+' min</div></div>'+
-        '<button class="delbtn" onclick="removeSchedTask('+i+',event)">&#128465;</button>';
+      d.innerHTML=`
+        <div style="font-size:1.25rem">${ICONS[a.category]||'⭐'}</div>
+        <div class="tif">
+          <div class="tnm">${a.name}</div>
+          <div class="tmt">${t.startTime?t.startTime+' · ':''}${t.duration} min</div>
+        </div>
+        <button class="delbtn" onclick="removeSchedTask(${i},event)">🗑</button>
+      `;
       sl.appendChild(d);
     });
   }
@@ -711,12 +721,13 @@ function renderSched(){
   db.activities.forEach(a=>{(grps[a.category]=grps[a.category]||[]).push(a)});
   Object.entries(grps).forEach(([cat,acts])=>{
     const s=document.createElement('div');s.style.marginBottom='10px';
-    s.innerHTML='<div class="stl" style="margin-bottom:5px">'+(ICONS[cat]||'⭐')+' '+cat+'</div>';
+    s.innerHTML=`<div class="stl" style="margin-bottom:5px">${ICONS[cat]||'⭐'} ${cat}</div>`;
     acts.forEach(a=>{
       const d=document.createElement('div');d.className='ti';d.style.marginBottom='6px';
-      d.innerHTML=
-        '<div class="tif"><div class="tnm">'+a.name+'</div><div class="tmt">'+a.duration+' min</div></div>'+
-        '<button class="btn bp bsm" onclick="openSAdd(\''+a.id+'\',event)">+ Add</button>';
+      d.innerHTML=`
+        <div class="tif"><div class="tnm">${a.name}</div><div class="tmt">${a.duration} min</div></div>
+        <button class="btn bp bsm" onclick="openSAdd('${a.id}',event)">+ Add</button>
+      `;
       s.appendChild(d);
     });
     ll.appendChild(s);
@@ -726,7 +737,7 @@ function renderSched(){
 function openSAdd(actId,e){
   e&&e.stopPropagation();pendActId=actId;
   const a=db.activities.find(x=>x.id===actId);
-  document.getElementById('sadd-name').textContent=(ICONS[a.category]||'⭐')+' '+a.name;
+  document.getElementById('sadd-name').textContent=`${ICONS[a.category]||'⭐'} ${a.name}`;
   document.getElementById('sadd-dur').value=a.duration;
   document.getElementById('sadd-time').value='';
   openM('m-sadd');
@@ -735,7 +746,7 @@ function openSAdd(actId,e){
 function addToSched(){
   const dur=parseInt(document.getElementById('sadd-dur').value)||20;
   const time=document.getElementById('sadd-time').value;
-  const key=schedKid+'-'+schedDate;
+  const key=`${schedKid}-${schedDate}`;
   if(!db.schedules[key])db.schedules[key]=[];
   db.schedules[key].push({activityId:pendActId,duration:dur,startTime:time||null,completed:false});
   saveDB();closeM('m-sadd');renderSched();beep(523,.1);
@@ -743,7 +754,7 @@ function addToSched(){
 
 function removeSchedTask(i,e){
   e&&e.stopPropagation();
-  const key=schedKid+'-'+schedDate;
+  const key=`${schedKid}-${schedDate}`;
   db.schedules[key].splice(i,1);saveDB();renderSched();
 }
 
@@ -864,6 +875,6 @@ document.querySelectorAll('.mbk').forEach(b=>
 );
 
 renderHome();
-<\/script>
+</script>
 </body>
 </html>
