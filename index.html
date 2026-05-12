@@ -68,6 +68,12 @@ input:focus,select:focus{border-color:var(--p)}
 .pstat .who{font-weight:700;flex:1}
 .pbar{height:8px;border-radius:999px;background:#eee;overflow:hidden}
 .pbar span{display:block;height:100%;background:var(--p);border-radius:inherit}
+.mini-history{display:flex;gap:5px;margin-top:10px}
+.hist-dot{height:18px;flex:1;border-radius:6px;background:#eee;position:relative;overflow:hidden}
+.hist-dot span{position:absolute;inset:auto 0 0;height:0;background:var(--p);opacity:.85}
+.badge{display:inline-flex;align-items:center;border-radius:999px;background:var(--pl);color:var(--p);font-size:.72rem;font-weight:700;padding:3px 8px;margin-left:6px}
+.checkrow{display:flex;align-items:center;gap:9px;margin:8px 0 14px;color:var(--text);font-size:.9rem}
+.checkrow input{width:18px;height:18px;accent-color:var(--p)}
 
 .stl{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
 
@@ -458,6 +464,7 @@ input:focus,select:focus{border-color:var(--p)}
   <div class="mod">
     <div class="mtl" id="m-kid-title">Add Profile</div>
     <div class="fg"><label>Name</label><input type="text" id="kid-name" placeholder="First name"></div>
+    <div class="fg"><label>Kid Access Code</label><input type="text" id="kid-pin" inputmode="numeric" maxlength="4" placeholder="Optional 4-digit code"></div>
     <div class="fg"><label>Avatar</label><div class="agrid" id="m-avs"></div></div>
     <div class="fg mt2"><label>Theme Color</label><div class="tgrid" id="m-themes"></div></div>
     <div class="fl g2 mt2">
@@ -474,10 +481,22 @@ input:focus,select:focus{border-color:var(--p)}
     <div id="sadd-name" style="font-weight:600;font-size:1.05rem;margin-bottom:14px"></div>
     <div class="fg"><label>Duration (minutes)</label><input type="number" id="sadd-dur" value="20" min="1" max="180"></div>
     <div class="fg"><label>Start Time (optional)</label><input type="time" id="sadd-time"></div>
+    <label class="checkrow"><input type="checkbox" id="sadd-weekly"> Repeat every <span id="sadd-weekday">week</span></label>
     <div class="fl g2 mt2">
       <button class="btn bo bbl" onclick="closeM('m-sadd')">Cancel</button>
       <button class="btn bp bbl" onclick="addToSched()">Add Task</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL: Kid Access Code -->
+<div id="m-kid-code" class="mbk" style="display:none">
+  <div class="mod">
+    <div class="mtl" id="kid-code-title">Enter Code</div>
+    <div class="fg"><label>Kid Access Code</label><input type="password" id="kid-code" inputmode="numeric" maxlength="4" placeholder="4-digit code"></div>
+    <button class="btn bp bbl" onclick="checkKidCode()">Continue</button>
+    <button class="btn bo bbl mt2" onclick="closeM('m-kid-code')">Cancel</button>
+    <div id="kid-code-msg" class="msg bad"></div>
   </div>
 </div>
 
@@ -509,8 +528,18 @@ const DEFAULT_ACTS=[
 ];
 
 function loadDB(){
-  try{const r=localStorage.getItem('ontime');if(r)return JSON.parse(r)}catch(e){}
-  return{pin:'1234',kids:[],activities:DEFAULT_ACTS,schedules:{}};
+  try{const r=localStorage.getItem('ontime');if(r)return normalizeDB(JSON.parse(r))}catch(e){}
+  return normalizeDB({pin:'1234',kids:[],activities:DEFAULT_ACTS,schedules:{}});
+}
+function normalizeDB(raw){
+  const d=raw||{};
+  d.pin=d.pin||'1234';
+  d.kids=Array.isArray(d.kids)?d.kids:[];
+  d.activities=Array.isArray(d.activities)&&d.activities.length?d.activities:DEFAULT_ACTS;
+  d.schedules=d.schedules||{};
+  d.weekly=d.weekly||{};
+  d.history=d.history||{};
+  return d;
 }
 function saveDB(){
   localStorage.setItem('ontime',JSON.stringify(db));
@@ -518,7 +547,7 @@ function saveDB(){
 }
 let db=loadDB();
 
-let kidId=null,pinBuf='',tSec=0,tTotal=0,tRunning=false,tIv=null;
+let kidId=null,pinBuf='',tSec=0,tTotal=0,tRunning=false,tIv=null,pendingKidId=null;
 let curTimerTask=null,pendActId=null,editActId=null,editKidId=null;
 let schedKid=null,schedDate=null;
 let addKidAv=AVATARS[0],addKidTheme='purple';
@@ -537,6 +566,7 @@ function loadBackendConfig(){
   return DEFAULT_BACKEND;
 }
 let backendConfig=loadBackendConfig();
+let lastSyncAt=localStorage.getItem('ontime-last-sync')||'';
 
 let actx=null;
 function getActx(){return actx||(actx=new(window.AudioContext||window.webkitAudioContext)())}
@@ -583,6 +613,14 @@ function initSupabase(){
   if(!hasBackendConfig()||!window.supabase)return null;
   sb=window.supabase.createClient(backendConfig.url,backendConfig.key);
   return sb;
+}
+function syncAge(){
+  if(!lastSyncAt)return '';
+  const sec=Math.max(0,Math.round((Date.now()-new Date(lastSyncAt).getTime())/1000));
+  if(sec<60)return 'just now';
+  const min=Math.round(sec/60);
+  if(min<60)return `${min}m ago`;
+  return `${Math.round(min/60)}h ago`;
 }
 function updateSyncStatus(text,type='off'){
   const dot=document.getElementById('sync-dot'),label=document.getElementById('sync-text'),signout=document.getElementById('signout-btn');
@@ -639,11 +677,13 @@ async function signOutParent(){
 }
 function queueCloudSave(){
   if(!parentSession||!sb||syncing)return;
+  updateSyncStatus(navigator.onLine?'Unsaved changes':'Offline - saved locally','off');
   clearTimeout(syncTimer);
   syncTimer=setTimeout(()=>pushCloudState(),600);
 }
 async function pushCloudState(){
   if(!parentSession||!sb)return;
+  if(!navigator.onLine){updateSyncStatus('Offline - saved locally','off');return}
   syncing=true;updateSyncStatus('Syncing...','');
   const payload={
     parent_id:parentSession.user.id,
@@ -652,7 +692,11 @@ async function pushCloudState(){
   };
   const {error}=await sb.from('parent_state').upsert(payload,{onConflict:'parent_id'});
   syncing=false;
-  updateSyncStatus(error?'Sync failed':'Cloud synced',error?'off':'on');
+  if(!error){
+    lastSyncAt=new Date().toISOString();
+    localStorage.setItem('ontime-last-sync',lastSyncAt);
+  }
+  updateSyncStatus(error?'Sync failed':`Saved ${syncAge()}`,error?'off':'on');
   if(error)console.warn(error.message);
 }
 async function loadCloudState(){
@@ -661,12 +705,14 @@ async function loadCloudState(){
   const {data,error}=await sb.from('parent_state').select('data').eq('parent_id',parentSession.user.id).maybeSingle();
   if(error){updateSyncStatus('Cloud load failed','off');console.warn(error.message);return}
   if(data?.data){
-    db=data.data;
+    db=normalizeDB(data.data);
     localStorage.setItem('ontime',JSON.stringify(db));
   } else {
     await pushCloudState();
   }
-  updateSyncStatus('Cloud synced','on');
+  lastSyncAt=new Date().toISOString();
+  localStorage.setItem('ontime-last-sync',lastSyncAt);
+  updateSyncStatus(`Loaded ${syncAge()}`,'on');
 }
 async function syncNow(){
   if(!initSupabase()){setMsg('set-cfg-msg','Backend is not configured yet.','bad');return}
@@ -688,17 +734,81 @@ function renderHome(){
     c.style.setProperty('--p',tc(k.theme));
     c.setAttribute('role','button');
     c.setAttribute('tabindex','0');
-    c.innerHTML=`<div class="pav">${esc(k.avatar||'🌟')}</div><div class="pnm">${esc(k.name)}</div>`;
-    c.onclick=()=>{kidId=k.id;beep(660,.08);go('kid')};
+    c.innerHTML=`<div class="pav">${esc(k.avatar||'🌟')}</div><div class="pnm">${esc(k.name)}</div>${k.pin?'<div class="hint mt1">Code required</div>':''}`;
+    c.onclick=()=>openKidProfile(k.id);
     c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();c.click()}};
     g.appendChild(c);
   });
+}
+
+function openKidProfile(id){
+  const k=db.kids.find(x=>x.id===id);
+  if(!k)return;
+  if(k.pin){
+    pendingKidId=id;
+    document.getElementById('kid-code-title').textContent=`${k.name}'s code`;
+    document.getElementById('kid-code').value='';
+    document.getElementById('kid-code-msg').textContent='';
+    openM('m-kid-code');
+    setTimeout(()=>document.getElementById('kid-code').focus(),50);
+    return;
+  }
+  enterKid(id);
+}
+function enterKid(id){
+  kidId=id;pendingKidId=null;beep(660,.08);closeM('m-kid-code');go('kid');
+}
+function checkKidCode(){
+  const k=db.kids.find(x=>x.id===pendingKidId);
+  const code=document.getElementById('kid-code').value.trim();
+  if(k&&code===k.pin){enterKid(k.id);return}
+  document.getElementById('kid-code-msg').textContent='That code did not match.';
+  document.getElementById('kid-code').value='';
 }
 
 function today(){
   const d=new Date();
   d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
   return d.toISOString().slice(0,10);
+}
+function dayName(dateStr){
+  return new Date(dateStr+'T12:00:00').toLocaleDateString('en-US',{weekday:'long'});
+}
+function dateKey(kid,date){return `${kid}-${date}`}
+function weeklyKey(kid,date){return `${kid}-${new Date(date+'T12:00:00').getDay()}`}
+function pastDates(days=7){
+  const out=[];
+  for(let i=days-1;i>=0;i--){
+    const d=new Date();
+    d.setDate(d.getDate()-i);
+    d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+    out.push(d.toISOString().slice(0,10));
+  }
+  return out;
+}
+function getTasksFor(kid,date,{materialize=false}={}){
+  const key=dateKey(kid,date);
+  if(!db.schedules[key])db.schedules[key]=[];
+  if(materialize){
+    const wk=weeklyKey(kid,date);
+    const templates=db.weekly[wk]||[];
+    templates.forEach(t=>{
+      if(!db.schedules[key].some(x=>x.templateId===t.id)){
+        db.schedules[key].push({
+          id:uid(),templateId:t.id,activityId:t.activityId,
+          duration:t.duration,startTime:t.startTime||null,completed:false,weekly:true
+        });
+      }
+    });
+  }
+  return db.schedules[key];
+}
+function recordProgress(kid,date){
+  const tasks=getTasksFor(kid,date);
+  const done=tasks.filter(t=>t.completed).length;
+  const total=tasks.length;
+  db.history[kid]=db.history[kid]||{};
+  db.history[kid][date]={done,total,pct:total?Math.round(done/total*100):0,updatedAt:new Date().toISOString()};
 }
 
 function renderKid(){
@@ -710,8 +820,8 @@ function renderKid(){
   const gr=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
   document.getElementById('greet').textContent=`${gr}, ${k.name}! 👋`;
   document.getElementById('dstr').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  const key=`${kidId}-${today()}`;
-  const tasks=db.schedules[key]||[];
+  const key=dateKey(kidId,today());
+  const tasks=getTasksFor(kidId,today(),{materialize:true});
   const done=tasks.filter(t=>t.completed).length;
   const pct=tasks.length?Math.round((done/tasks.length)*100):0;
   document.getElementById('stat').textContent=
@@ -746,11 +856,12 @@ function renderKid(){
 }
 
 function toggleDone(i){
-  const key=`${kidId}-${today()}`;
+  const key=dateKey(kidId,today());
   if(!db.schedules[key])return;
   const t=db.schedules[key][i];
   t.completed=!t.completed;
   if(t.completed)fanfare();
+  recordProgress(kidId,today());
   saveDB();renderKid();
 }
 
@@ -758,7 +869,7 @@ const CIRC=2*Math.PI*90;
 
 function openTimer(i,e){
   e&&e.stopPropagation();
-  const key=`${kidId}-${today()}`;
+  const key=dateKey(kidId,today());
   const t=db.schedules[key]?.[i];
   if(!t)return;
   const a=db.activities.find(x=>x.id===t.activityId);
@@ -813,8 +924,8 @@ function timerDone(){
   document.getElementById('t-done').style.display='block';
   if(curTimerTask){
     const{kidId:k,date:d,idx:i}=curTimerTask;
-    const key=`${k}-${d}`;
-    if(db.schedules[key]?.[i]){db.schedules[key][i].completed=true;saveDB()}
+    const key=dateKey(k,d);
+    if(db.schedules[key]?.[i]){db.schedules[key][i].completed=true;recordProgress(k,d);saveDB()}
   }
 }
 
@@ -827,8 +938,8 @@ function resetTimer(){
 function markDone(){
   if(curTimerTask){
     const{kidId:k,date:d,idx:i}=curTimerTask;
-    const key=`${k}-${d}`;
-    if(db.schedules[key]?.[i]){db.schedules[key][i].completed=true;saveDB()}
+    const key=dateKey(k,d);
+    if(db.schedules[key]?.[i]){db.schedules[key][i].completed=true;recordProgress(k,d);saveDB()}
   }
   clearInterval(tIv);tIv=null;
   fanfare();go('kid');
@@ -855,7 +966,7 @@ function checkPin(){
 }
 
 function renderParent(){
-  updateSyncStatus(parentSession?'Cloud synced':hasBackendConfig()?'Sign in to sync':'Local mode',parentSession?'on':'off');
+  updateSyncStatus(parentSession?`Saved ${syncAge()||'locally'}`:hasBackendConfig()?'Sign in to sync':'Local mode',parentSession?'on':'off');
   renderProgress();renderPKids();renderPActs();renderSBKids();
   document.getElementById('sb-date').value=today();
 }
@@ -866,9 +977,11 @@ function renderProgress(){
   el.innerHTML='';
   if(!db.kids.length){el.innerHTML='<div class="ec" style="padding:16px 0"><div>Add a kid to start tracking progress.</div></div>';return}
   db.kids.forEach(k=>{
-    const tasks=db.schedules[`${k.id}-${today()}`]||[];
+    const tasks=getTasksFor(k.id,today(),{materialize:true});
     const done=tasks.filter(t=>t.completed).length;
     const pct=tasks.length?Math.round((done/tasks.length)*100):0;
+    const history=pastDates(7).map(d=>db.history[k.id]?.[d]?.pct??0);
+    const avg=history.length?Math.round(history.reduce((a,b)=>a+b,0)/history.length):0;
     const d=document.createElement('div');
     d.className='pstat';
     d.style.setProperty('--p',tc(k.theme));
@@ -879,7 +992,8 @@ function renderProgress(){
         <div class="hint">${done}/${tasks.length}</div>
       </div>
       <div class="pbar"><span style="width:${pct}%"></span></div>
-      <div class="hint mt1">${tasks.length?pct+'% complete':'No tasks scheduled today'}</div>
+      <div class="hint mt1">${tasks.length?pct+'% complete':'No tasks scheduled today'} · 7-day avg ${avg}%</div>
+      <div class="mini-history" title="Last 7 days">${history.map(v=>`<div class="hist-dot"><span style="height:${v}%"></span></div>`).join('')}</div>
     `;
     el.appendChild(d);
   });
@@ -893,7 +1007,7 @@ function renderPKids(){
     const d=document.createElement('div');d.className='ti manager';
     d.innerHTML=`
       <div style="font-size:1.5rem">${esc(k.avatar||'🌟')}</div>
-      <div class="tif"><div class="tnm">${esc(k.name)}</div><div class="tmt">Theme: ${esc(k.theme)}</div></div>
+      <div class="tif"><div class="tnm">${esc(k.name)}${k.pin?'<span class="badge">Code</span>':''}</div><div class="tmt">Theme: ${esc(k.theme)}</div></div>
       <div class="row-actions">
         <button class="iconbtn" onclick="openEditKid('${k.id}',event)" aria-label="Edit profile" title="Edit profile">✎</button>
         <button class="iconbtn danger" onclick="delKid('${k.id}',event)" aria-label="Delete profile" title="Delete profile">🗑</button>
@@ -937,6 +1051,7 @@ function openSchedule(){
   schedKid=document.getElementById('sb-kid').value;
   schedDate=document.getElementById('sb-date').value;
   if(!schedKid||!schedDate)return;
+  getTasksFor(schedKid,schedDate,{materialize:true});
   const k=db.kids.find(x=>x.id===schedKid);
   const ds=new Date(schedDate+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
   document.getElementById('sched-hdr').textContent=`${k?.name||'Schedule'} · ${ds}`;
@@ -944,9 +1059,8 @@ function openSchedule(){
 }
 
 function renderSched(){
-  const key=`${schedKid}-${schedDate}`;
-  if(!db.schedules[key])db.schedules[key]=[];
-  const tasks=db.schedules[key];
+  const key=dateKey(schedKid,schedDate);
+  const tasks=getTasksFor(schedKid,schedDate,{materialize:true});
   const sl=document.getElementById('sched-list');
   sl.innerHTML='';
   if(!tasks.length){
@@ -958,7 +1072,7 @@ function renderSched(){
       d.innerHTML=`
         <div style="font-size:1.25rem">${esc(ICONS[a.category]||'⭐')}</div>
         <div class="tif">
-          <div class="tnm">${esc(a.name)}</div>
+          <div class="tnm">${esc(a.name)}${t.templateId?'<span class="badge">Weekly</span>':''}</div>
           <div class="tmt">${t.startTime?t.startTime+' · ':''}${t.duration} min</div>
         </div>
         <button class="iconbtn danger" onclick="removeSchedTask(${i},event)" aria-label="Remove task" title="Remove task">🗑</button>
@@ -990,27 +1104,52 @@ function openSAdd(actId,e){
   document.getElementById('sadd-name').textContent=`${ICONS[a.category]||'⭐'} ${a.name}`;
   document.getElementById('sadd-dur').value=a.duration;
   document.getElementById('sadd-time').value='';
+  document.getElementById('sadd-weekly').checked=false;
+  document.getElementById('sadd-weekday').textContent=dayName(schedDate);
   openM('m-sadd');
 }
 
 function addToSched(){
   const dur=clamp(parseInt(document.getElementById('sadd-dur').value)||20,1,180);
   const time=document.getElementById('sadd-time').value;
-  const key=`${schedKid}-${schedDate}`;
+  const repeat=document.getElementById('sadd-weekly').checked;
+  const key=dateKey(schedKid,schedDate);
   if(!db.schedules[key])db.schedules[key]=[];
-  db.schedules[key].push({activityId:pendActId,duration:dur,startTime:time||null,completed:false});
+  if(repeat){
+    const wk=weeklyKey(schedKid,schedDate);
+    db.weekly[wk]=db.weekly[wk]||[];
+    const template={id:uid(),activityId:pendActId,duration:dur,startTime:time||null};
+    db.weekly[wk].push(template);
+    db.schedules[key].push({id:uid(),templateId:template.id,activityId:pendActId,duration:dur,startTime:time||null,completed:false,weekly:true});
+  } else {
+    db.schedules[key].push({id:uid(),activityId:pendActId,duration:dur,startTime:time||null,completed:false});
+  }
+  recordProgress(schedKid,schedDate);
   saveDB();closeM('m-sadd');renderSched();beep(523,.1);
 }
 
 function removeSchedTask(i,e){
   e&&e.stopPropagation();
-  const key=`${schedKid}-${schedDate}`;
-  db.schedules[key].splice(i,1);saveDB();renderSched();
+  const key=dateKey(schedKid,schedDate);
+  const task=db.schedules[key]?.[i];
+  if(!task)return;
+  if(task.templateId&&confirm('Remove this weekly task from this weekday?')){
+    const wk=weeklyKey(schedKid,schedDate);
+    db.weekly[wk]=(db.weekly[wk]||[]).filter(t=>t.id!==task.templateId);
+    Object.keys(db.schedules).forEach(k=>{
+      if(k.startsWith(`${schedKid}-`))db.schedules[k]=db.schedules[k].filter(t=>t.templateId!==task.templateId);
+    });
+  } else if(!task.templateId) {
+    db.schedules[key].splice(i,1);
+  }
+  recordProgress(schedKid,schedDate);
+  saveDB();renderSched();
 }
 
 function openAddKid(){
   editKidId=null;addKidAv=AVATARS[0];addKidTheme='purple';
   document.getElementById('kid-name').value='';
+  document.getElementById('kid-pin').value='';
   document.getElementById('m-kid-title').textContent='Add Profile';
   buildAvatarGrid('m-avs',()=>addKidAv,(v)=>{addKidAv=v});
   buildThemeGrid('m-themes',()=>addKidTheme,(v)=>{addKidTheme=v});
@@ -1025,6 +1164,7 @@ function openEditKid(id,e){
   addKidAv=k.avatar||AVATARS[0];
   addKidTheme=k.theme||'purple';
   document.getElementById('kid-name').value=k.name||'';
+  document.getElementById('kid-pin').value=k.pin||'';
   document.getElementById('m-kid-title').textContent='Edit Profile';
   buildAvatarGrid('m-avs',()=>addKidAv,(v)=>{addKidAv=v});
   buildThemeGrid('m-themes',()=>addKidTheme,(v)=>{addKidTheme=v});
@@ -1033,12 +1173,14 @@ function openEditKid(id,e){
 
 function saveKid(){
   const name=document.getElementById('kid-name').value.trim();
+  const pin=document.getElementById('kid-pin').value.trim();
   if(!name)return;
+  if(pin&&!/^\d{4}$/.test(pin)){alert('Kid access code must be 4 digits.');return}
   if(editKidId){
     const k=db.kids.find(x=>x.id===editKidId);
-    if(k){k.name=name;k.avatar=addKidAv;k.theme=addKidTheme}
+    if(k){k.name=name;k.avatar=addKidAv;k.theme=addKidTheme;k.pin=pin||null}
   } else {
-    db.kids.push({id:uid(),name,avatar:addKidAv,theme:addKidTheme});
+    db.kids.push({id:uid(),name,avatar:addKidAv,theme:addKidTheme,pin:pin||null});
   }
   saveDB();closeM('m-kid');renderParent();beep(523,.15);
 }
@@ -1048,6 +1190,8 @@ function delKid(id,e){
   if(!confirm('Delete this profile and all their schedules?'))return;
   db.kids=db.kids.filter(k=>k.id!==id);
   Object.keys(db.schedules).forEach(k=>{if(k.startsWith(`${id}-`))delete db.schedules[k]});
+  Object.keys(db.weekly).forEach(k=>{if(k.startsWith(`${id}-`))delete db.weekly[k]});
+  delete db.history[id];
   saveDB();renderParent();
 }
 
@@ -1092,6 +1236,9 @@ function delAct(id,e){
   db.activities=db.activities.filter(a=>a.id!==id);
   Object.keys(db.schedules).forEach(k=>{
     db.schedules[k]=db.schedules[k].filter(t=>t.activityId!==id);
+  });
+  Object.keys(db.weekly).forEach(k=>{
+    db.weekly[k]=db.weekly[k].filter(t=>t.activityId!==id);
   });
   saveDB();renderParent();
 }
@@ -1154,6 +1301,8 @@ function closeM(id){document.getElementById(id).style.display='none'}
 document.querySelectorAll('.mbk').forEach(b=>
   b.addEventListener('click',e=>{if(e.target===b)b.style.display='none'})
 );
+window.addEventListener('online',()=>{if(parentSession)pushCloudState()});
+window.addEventListener('offline',()=>updateSyncStatus('Offline - saved locally','off'));
 
 async function initApp(){
   fillBackendFields();
