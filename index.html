@@ -21,6 +21,9 @@
 [data-theme=teal]  {--p:#009688;--pl:#e0f2f1;--bg:#f0faf9}
 
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button,input,select{font:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--p);outline-offset:2px}
+button:disabled{opacity:.55;cursor:not-allowed}
 
 .screen{display:none;min-height:100vh;flex-direction:column}
 .screen.on{display:flex}
@@ -67,6 +70,8 @@ input:focus,select:focus{border-color:var(--p)}
 .banner .greet{font-size:1.3rem;font-weight:800}
 .banner .dstr{font-size:.85rem;opacity:.8;margin-top:3px}
 .banner .stat{margin-top:10px;font-size:.95rem;font-weight:600}
+.day-progress{height:8px;background:rgba(255,255,255,.24);border-radius:999px;margin-top:12px;overflow:hidden}
+.day-progress span{display:block;height:100%;width:0;background:#fff;border-radius:inherit;transition:width .35s ease}
 
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px}
 .pcard{
@@ -88,6 +93,8 @@ input:focus,select:focus{border-color:var(--p)}
 .ti.done{opacity:.55}
 .ti.done .tnm{text-decoration:line-through}
 .ti.running{border:2px solid var(--p);background:var(--pl)}
+.ti.manager{cursor:default}
+.ti.manager:active{transform:none}
 .tck{
   width:26px;height:26px;border-radius:50%;border:3px solid var(--p);
   display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem
@@ -100,6 +107,13 @@ input:focus,select:focus{border-color:var(--p)}
   background:var(--pl);color:var(--p);border:none;
   padding:5px 11px;border-radius:20px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap
 }
+.row-actions{display:flex;gap:6px;align-items:center}
+.iconbtn{
+  width:34px;height:34px;border:none;border-radius:50%;background:var(--pl);
+  color:var(--p);display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:.95rem;font-weight:700
+}
+.iconbtn.danger{background:#ffebee;color:var(--bad)}
 
 .tdsp{font-size:3.6rem;font-weight:800;color:var(--p);text-align:center}
 .tlbl{font-size:1.1rem;font-weight:600;text-align:center;color:var(--muted);margin-bottom:6px}
@@ -196,6 +210,7 @@ input:focus,select:focus{border-color:var(--p)}
       <div class="greet" id="greet"></div>
       <div class="dstr" id="dstr"></div>
       <div class="stat" id="stat"></div>
+      <div class="day-progress" aria-hidden="true"><span id="progfill"></span></div>
     </div>
     <div class="stl">Today's Responsibilities</div>
     <div id="tasklist"></div>
@@ -467,6 +482,12 @@ function go(scr){
 
 function applyTheme(el,t){el.setAttribute('data-theme',t||'purple')}
 function tc(t){return TCOLORS[t]||'#6c63ff'}
+function esc(v){
+  return String(v??'').replace(/[&<>"']/g,ch=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
+}
+function clamp(n,min,max){return Math.min(max,Math.max(min,n))}
 
 function renderHome(){
   const g=document.getElementById('pgrid'),n=document.getElementById('no-kids');
@@ -477,13 +498,20 @@ function renderHome(){
     const c=document.createElement('div');
     c.className='pcard pop';
     c.style.setProperty('--p',tc(k.theme));
-    c.innerHTML=`<div class="pav">${k.avatar||'🌟'}</div><div class="pnm">${k.name}</div>`;
+    c.setAttribute('role','button');
+    c.setAttribute('tabindex','0');
+    c.innerHTML=`<div class="pav">${esc(k.avatar||'🌟')}</div><div class="pnm">${esc(k.name)}</div>`;
     c.onclick=()=>{kidId=k.id;beep(660,.08);go('kid')};
+    c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();c.click()}};
     g.appendChild(c);
   });
 }
 
-function today(){return new Date().toISOString().slice(0,10)}
+function today(){
+  const d=new Date();
+  d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+  return d.toISOString().slice(0,10);
+}
 
 function renderKid(){
   const k=db.kids.find(x=>x.id===kidId);
@@ -497,10 +525,12 @@ function renderKid(){
   const key=`${kidId}-${today()}`;
   const tasks=db.schedules[key]||[];
   const done=tasks.filter(t=>t.completed).length;
+  const pct=tasks.length?Math.round((done/tasks.length)*100):0;
   document.getElementById('stat').textContent=
     !tasks.length?'No tasks yet today.':
     done===tasks.length?`🎉 All ${tasks.length} tasks complete! Amazing!`:
-    `${done} of ${tasks.length} done`;
+    `${done} of ${tasks.length} done · ${pct}%`;
+  document.getElementById('progfill').style.width=`${pct}%`;
   const list=document.getElementById('tasklist'),nm=document.getElementById('no-tasks');
   list.innerHTML='';
   if(!tasks.length){nm.style.display='block';return}
@@ -515,9 +545,9 @@ function renderKid(){
     el.className='ti'+(t.completed?' done':'');
     el.innerHTML=`
       <div class="tck">${t.completed?'✓':''}</div>
-      <div style="font-size:1.35rem">${icon}</div>
+      <div style="font-size:1.35rem">${esc(icon)}</div>
       <div class="tif">
-        <div class="tnm">${a.name}</div>
+        <div class="tnm">${esc(a.name)}</div>
         <div class="tmt">${tstr}${dur} min</div>
       </div>
       ${!t.completed?`<button class="ttrb" onclick="openTimer(${i},event)">▶ Timer</button>`:''}
@@ -646,11 +676,14 @@ function renderPKids(){
   el.innerHTML='';
   if(!db.kids.length){el.innerHTML='<div class="ec" style="padding:20px 0"><div>No kids yet.</div></div>';return}
   db.kids.forEach(k=>{
-    const d=document.createElement('div');d.className='ti';
+    const d=document.createElement('div');d.className='ti manager';
     d.innerHTML=`
-      <div style="font-size:1.5rem">${k.avatar||'🌟'}</div>
-      <div class="tif"><div class="tnm">${k.name}</div><div class="tmt">Theme: ${k.theme}</div></div>
-      <button class="delbtn" onclick="delKid('${k.id}',event)">🗑</button>
+      <div style="font-size:1.5rem">${esc(k.avatar||'🌟')}</div>
+      <div class="tif"><div class="tnm">${esc(k.name)}</div><div class="tmt">Theme: ${esc(k.theme)}</div></div>
+      <div class="row-actions">
+        <button class="iconbtn" onclick="openEditKid('${k.id}',event)" aria-label="Edit profile" title="Edit profile">✎</button>
+        <button class="iconbtn danger" onclick="delKid('${k.id}',event)" aria-label="Delete profile" title="Delete profile">🗑</button>
+      </div>
     `;
     el.appendChild(d);
   });
@@ -664,12 +697,15 @@ function renderPActs(){
   db.activities.forEach(a=>{(grps[a.category]=grps[a.category]||[]).push(a)});
   Object.entries(grps).forEach(([cat,acts])=>{
     const s=document.createElement('div');s.style.marginBottom='10px';
-    s.innerHTML=`<div class="stl" style="margin-bottom:5px">${ICONS[cat]||'⭐'} ${cat}</div>`;
+    s.innerHTML=`<div class="stl" style="margin-bottom:5px">${esc(ICONS[cat]||'⭐')} ${esc(cat)}</div>`;
     acts.forEach(a=>{
-      const d=document.createElement('div');d.className='ti';d.style.marginBottom='6px';
+      const d=document.createElement('div');d.className='ti manager';d.style.marginBottom='6px';
       d.innerHTML=`
-        <div class="tif"><div class="tnm">${a.name}</div><div class="tmt">${a.duration} min</div></div>
-        <button class="delbtn" onclick="delAct('${a.id}',event)">🗑</button>
+        <div class="tif"><div class="tnm">${esc(a.name)}</div><div class="tmt">${a.duration} min</div></div>
+        <div class="row-actions">
+          <button class="iconbtn" onclick="openEditAct('${a.id}',event)" aria-label="Edit activity" title="Edit activity">✎</button>
+          <button class="iconbtn danger" onclick="delAct('${a.id}',event)" aria-label="Delete activity" title="Delete activity">🗑</button>
+        </div>
       `;
       s.appendChild(d);
     });
@@ -689,7 +725,7 @@ function openSchedule(){
   if(!schedKid||!schedDate)return;
   const k=db.kids.find(x=>x.id===schedKid);
   const ds=new Date(schedDate+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  document.getElementById('sched-hdr').textContent=`${k?.name} · ${ds}`;
+  document.getElementById('sched-hdr').textContent=`${k?.name||'Schedule'} · ${ds}`;
   go('sched');
 }
 
@@ -706,12 +742,12 @@ function renderSched(){
       const a=db.activities.find(x=>x.id===t.activityId);if(!a)return;
       const d=document.createElement('div');d.className='ti';d.style.marginBottom='8px';
       d.innerHTML=`
-        <div style="font-size:1.25rem">${ICONS[a.category]||'⭐'}</div>
+        <div style="font-size:1.25rem">${esc(ICONS[a.category]||'⭐')}</div>
         <div class="tif">
-          <div class="tnm">${a.name}</div>
+          <div class="tnm">${esc(a.name)}</div>
           <div class="tmt">${t.startTime?t.startTime+' · ':''}${t.duration} min</div>
         </div>
-        <button class="delbtn" onclick="removeSchedTask(${i},event)">🗑</button>
+        <button class="iconbtn danger" onclick="removeSchedTask(${i},event)" aria-label="Remove task" title="Remove task">🗑</button>
       `;
       sl.appendChild(d);
     });
@@ -721,11 +757,11 @@ function renderSched(){
   db.activities.forEach(a=>{(grps[a.category]=grps[a.category]||[]).push(a)});
   Object.entries(grps).forEach(([cat,acts])=>{
     const s=document.createElement('div');s.style.marginBottom='10px';
-    s.innerHTML=`<div class="stl" style="margin-bottom:5px">${ICONS[cat]||'⭐'} ${cat}</div>`;
+    s.innerHTML=`<div class="stl" style="margin-bottom:5px">${esc(ICONS[cat]||'⭐')} ${esc(cat)}</div>`;
     acts.forEach(a=>{
       const d=document.createElement('div');d.className='ti';d.style.marginBottom='6px';
       d.innerHTML=`
-        <div class="tif"><div class="tnm">${a.name}</div><div class="tmt">${a.duration} min</div></div>
+        <div class="tif"><div class="tnm">${esc(a.name)}</div><div class="tmt">${a.duration} min</div></div>
         <button class="btn bp bsm" onclick="openSAdd('${a.id}',event)">+ Add</button>
       `;
       s.appendChild(d);
@@ -744,7 +780,7 @@ function openSAdd(actId,e){
 }
 
 function addToSched(){
-  const dur=parseInt(document.getElementById('sadd-dur').value)||20;
+  const dur=clamp(parseInt(document.getElementById('sadd-dur').value)||20,1,180);
   const time=document.getElementById('sadd-time').value;
   const key=`${schedKid}-${schedDate}`;
   if(!db.schedules[key])db.schedules[key]=[];
@@ -767,6 +803,20 @@ function openAddKid(){
   openM('m-kid');
 }
 
+function openEditKid(id,e){
+  e&&e.stopPropagation();
+  const k=db.kids.find(x=>x.id===id);
+  if(!k)return;
+  editKidId=id;
+  addKidAv=k.avatar||AVATARS[0];
+  addKidTheme=k.theme||'purple';
+  document.getElementById('kid-name').value=k.name||'';
+  document.getElementById('m-kid-title').textContent='Edit Profile';
+  buildAvatarGrid('m-avs',()=>addKidAv,(v)=>{addKidAv=v});
+  buildThemeGrid('m-themes',()=>addKidTheme,(v)=>{addKidTheme=v});
+  openM('m-kid');
+}
+
 function saveKid(){
   const name=document.getElementById('kid-name').value.trim();
   if(!name)return;
@@ -783,22 +833,35 @@ function delKid(id,e){
   e&&e.stopPropagation();
   if(!confirm('Delete this profile and all their schedules?'))return;
   db.kids=db.kids.filter(k=>k.id!==id);
-  Object.keys(db.schedules).forEach(k=>{if(k.startsWith(id))delete db.schedules[k]});
+  Object.keys(db.schedules).forEach(k=>{if(k.startsWith(`${id}-`))delete db.schedules[k]});
   saveDB();renderParent();
 }
 
 function openAddAct(){
   editActId=null;
   document.getElementById('act-name').value='';
+  document.getElementById('act-cat').value='Homework';
   document.getElementById('act-dur').value='20';
   document.getElementById('m-act-title').textContent='Add Activity';
+  openM('m-act');
+}
+
+function openEditAct(id,e){
+  e&&e.stopPropagation();
+  const a=db.activities.find(x=>x.id===id);
+  if(!a)return;
+  editActId=id;
+  document.getElementById('act-name').value=a.name||'';
+  document.getElementById('act-cat').value=a.category||'Other';
+  document.getElementById('act-dur').value=a.duration||20;
+  document.getElementById('m-act-title').textContent='Edit Activity';
   openM('m-act');
 }
 
 function saveAct(){
   const name=document.getElementById('act-name').value.trim();
   const cat=document.getElementById('act-cat').value;
-  const dur=parseInt(document.getElementById('act-dur').value)||20;
+  const dur=clamp(parseInt(document.getElementById('act-dur').value)||20,1,180);
   if(!name)return;
   if(editActId){
     const a=db.activities.find(x=>x.id===editActId);
@@ -811,7 +874,11 @@ function saveAct(){
 
 function delAct(id,e){
   e&&e.stopPropagation();
+  if(!confirm('Delete this activity and remove it from schedules?'))return;
   db.activities=db.activities.filter(a=>a.id!==id);
+  Object.keys(db.schedules).forEach(k=>{
+    db.schedules[k]=db.schedules[k].filter(t=>t.activityId!==id);
+  });
   saveDB();renderParent();
 }
 
