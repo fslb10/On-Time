@@ -74,6 +74,11 @@ input:focus,select:focus{border-color:var(--p)}
 .badge{display:inline-flex;align-items:center;border-radius:999px;background:var(--pl);color:var(--p);font-size:.72rem;font-weight:700;padding:3px 8px;margin-left:6px}
 .checkrow{display:flex;align-items:center;gap:9px;margin:8px 0 14px;color:var(--text);font-size:.9rem}
 .checkrow input{width:18px;height:18px;accent-color:var(--p)}
+.onboard{background:var(--pl);color:var(--text);border-left:4px solid var(--p);border-radius:12px;padding:13px;margin-bottom:14px}
+.onboard strong{display:block;margin-bottom:4px}
+.upnext{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:13px;margin-bottom:14px}
+.upnext .ico{font-size:1.45rem}.upnext .name{font-weight:800}.upnext .meta{font-size:.8rem;color:var(--muted);margin-top:2px}
+.donebox{background:var(--card);border-radius:12px;text-align:center;padding:22px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-top:12px}
 
 .stl{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
 
@@ -242,6 +247,7 @@ input:focus,select:focus{border-color:var(--p)}
       <div class="fg"><label>Email</label><input type="text" id="auth-email" autocomplete="email" placeholder="parent@example.com"></div>
       <div class="fg"><label>Password</label><input type="password" id="auth-pass" autocomplete="current-password" placeholder="At least 6 characters"></div>
       <button id="auth-btn" class="btn bp bbl" onclick="submitAuth()">Sign In</button>
+      <button class="btn bo bbl mt2" onclick="resetPassword()">Forgot Password</button>
       <button class="btn bo bbl mt2" onclick="goPin()">Use Local PIN Instead</button>
       <div id="auth-msg" class="msg"></div>
     </div>
@@ -262,6 +268,7 @@ input:focus,select:focus{border-color:var(--p)}
       <div class="stat" id="stat"></div>
       <div class="day-progress" aria-hidden="true"><span id="progfill"></span></div>
     </div>
+    <div id="upnext"></div>
     <div class="stl">Today's Responsibilities</div>
     <div id="tasklist"></div>
     <div id="no-tasks" class="ec" style="display:none">
@@ -343,6 +350,7 @@ input:focus,select:focus{border-color:var(--p)}
     <button class="hact" onclick="go('psettings')">⚙️</button>
   </div>
   <div class="cnt">
+    <div id="onboard" class="onboard" style="display:none"></div>
     <div class="syncbar">
       <span><span id="sync-dot" class="syncdot off"></span><span id="sync-text">Local mode</span></span>
       <button id="signout-btn" class="hact" style="display:none;background:var(--p)" onclick="signOutParent()">Sign Out</button>
@@ -399,6 +407,14 @@ input:focus,select:focus{border-color:var(--p)}
       <button class="btn bp bbl" onclick="saveBackendConfig(true)">Save Backend Settings</button>
       <button class="btn bo bbl mt2" onclick="syncNow()">Sync Now</button>
       <div id="set-cfg-msg" class="msg"></div>
+    </div>
+    <div class="card">
+      <div class="stl">Family Data</div>
+      <button class="btn bo bbl" onclick="exportData()">Export Backup</button>
+      <button class="btn bo bbl mt2" onclick="importData()">Import Backup</button>
+      <button class="btn bd bbl mt2" onclick="resetFamilyData()">Reset Family Data</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none">
+      <div id="data-msg" class="msg"></div>
     </div>
     <div class="card">
       <div class="stl">Change PIN</div>
@@ -477,14 +493,14 @@ input:focus,select:focus{border-color:var(--p)}
 <!-- MODAL: Add to Schedule -->
 <div id="m-sadd" class="mbk" style="display:none">
   <div class="mod">
-    <div class="mtl">Add to Schedule</div>
+    <div class="mtl" id="m-sadd-title">Add to Schedule</div>
     <div id="sadd-name" style="font-weight:600;font-size:1.05rem;margin-bottom:14px"></div>
     <div class="fg"><label>Duration (minutes)</label><input type="number" id="sadd-dur" value="20" min="1" max="180"></div>
     <div class="fg"><label>Start Time (optional)</label><input type="time" id="sadd-time"></div>
     <label class="checkrow"><input type="checkbox" id="sadd-weekly"> Repeat every <span id="sadd-weekday">week</span></label>
     <div class="fl g2 mt2">
       <button class="btn bo bbl" onclick="closeM('m-sadd')">Cancel</button>
-      <button class="btn bp bbl" onclick="addToSched()">Add Task</button>
+      <button class="btn bp bbl" id="sadd-save" onclick="saveSchedTask()">Add Task</button>
     </div>
   </div>
 </div>
@@ -548,7 +564,7 @@ function saveDB(){
 let db=loadDB();
 
 let kidId=null,pinBuf='',tSec=0,tTotal=0,tRunning=false,tIv=null,pendingKidId=null;
-let curTimerTask=null,pendActId=null,editActId=null,editKidId=null;
+let curTimerTask=null,pendActId=null,editActId=null,editKidId=null,editSchedIndex=null;
 let schedKid=null,schedDate=null;
 let addKidAv=AVATARS[0],addKidTheme='purple';
 let authMode='in',sb=null,parentSession=null,syncTimer=null,syncing=false;
@@ -671,6 +687,14 @@ async function submitAuth(){
   setMsg('auth-msg','Signed in.','ok');
   go('parent');
 }
+async function resetPassword(){
+  if(!hasBackendConfig())saveBackendConfig(false);
+  if(!initSupabase()){setMsg('auth-msg','Backend is not configured yet.','bad');return}
+  const email=document.getElementById('auth-email').value.trim();
+  if(!email){setMsg('auth-msg','Enter your email first.','bad');return}
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.href});
+  setMsg('auth-msg',error?error.message:'Password reset email sent.',''+(error?'bad':'ok'));
+}
 async function signOutParent(){
   if(sb)await sb.auth.signOut();
   parentSession=null;updateSyncStatus('Local mode','off');go('home');
@@ -721,6 +745,34 @@ async function syncNow(){
   if(!parentSession){setMsg('set-cfg-msg','Sign in first, then sync.','bad');go('auth');return}
   await pushCloudState();
   setMsg('set-cfg-msg','Synced.','ok');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`on-time-backup-${today()}.json`;a.click();
+  URL.revokeObjectURL(url);
+  setMsg('data-msg','Backup exported.','ok');
+}
+function importData(){
+  const input=document.getElementById('import-file');
+  input.onchange=()=>{
+    const file=input.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      try{
+        db=normalizeDB(JSON.parse(reader.result));
+        saveDB();renderParent();setMsg('data-msg','Backup imported.','ok');
+      }catch(e){setMsg('data-msg','That backup file could not be read.','bad')}
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+function resetFamilyData(){
+  if(!confirm('Reset kids, activities, schedules, and progress?'))return;
+  db=normalizeDB({pin:db.pin||'1234',kids:[],activities:DEFAULT_ACTS,schedules:{}});
+  saveDB();renderParent();setMsg('data-msg','Family data reset.','ok');
 }
 
 function renderHome(){
@@ -830,6 +882,7 @@ function renderKid(){
     `${done} of ${tasks.length} done · ${pct}%`;
   document.getElementById('progfill').style.width=`${pct}%`;
   const list=document.getElementById('tasklist'),nm=document.getElementById('no-tasks');
+  renderUpNext(tasks);
   list.innerHTML='';
   if(!tasks.length){nm.style.display='block';return}
   nm.style.display='none';
@@ -967,8 +1020,25 @@ function checkPin(){
 
 function renderParent(){
   updateSyncStatus(parentSession?`Saved ${syncAge()||'locally'}`:hasBackendConfig()?'Sign in to sync':'Local mode',parentSession?'on':'off');
+  renderOnboarding();
   renderProgress();renderPKids();renderPActs();renderSBKids();
   document.getElementById('sb-date').value=today();
+}
+
+function renderOnboarding(){
+  const el=document.getElementById('onboard');if(!el)return;
+  if(!db.kids.length){
+    el.style.display='block';
+    el.innerHTML='<strong>Start with a kid profile.</strong><div class="hint">Add a kid, choose an avatar, and optionally set a 4-digit access code.</div>';
+  } else if(!Object.keys(db.schedules).length&&!Object.keys(db.weekly).length){
+    el.style.display='block';
+    el.innerHTML='<strong>Add the first task.</strong><div class="hint">Open the schedule builder, choose an activity, and make it recurring if it happens every week.</div>';
+  } else if(!parentSession){
+    el.style.display='block';
+    el.innerHTML='<strong>Sign in to sync.</strong><div class="hint">Use Parent Mode login so progress follows the family across devices.</div>';
+  } else {
+    el.style.display='none';
+  }
 }
 
 function renderProgress(){
@@ -978,7 +1048,9 @@ function renderProgress(){
   if(!db.kids.length){el.innerHTML='<div class="ec" style="padding:16px 0"><div>Add a kid to start tracking progress.</div></div>';return}
   db.kids.forEach(k=>{
     const tasks=getTasksFor(k.id,today(),{materialize:true});
-    const done=tasks.filter(t=>t.completed).length;
+    const liveDone=tasks.filter(t=>t.completed).length;
+    const hist=db.history[k.id]?.[today()];
+    const done=hist&&hist.total===tasks.length?Math.max(liveDone,hist.done):liveDone;
     const pct=tasks.length?Math.round((done/tasks.length)*100):0;
     const history=pastDates(7).map(d=>db.history[k.id]?.[d]?.pct??0);
     const avg=history.length?Math.round(history.reduce((a,b)=>a+b,0)/history.length):0;
@@ -997,6 +1069,25 @@ function renderProgress(){
     `;
     el.appendChild(d);
   });
+}
+
+function renderUpNext(tasks){
+  const el=document.getElementById('upnext');if(!el)return;
+  const next=tasks.find(t=>!t.completed);
+  if(!tasks.length){el.innerHTML='';return}
+  if(!next){
+    el.innerHTML='<div class="donebox"><div style="font-size:2rem">🎉</div><div class="tnm">All done for today</div><div class="hint mt1">Nice work staying on track.</div></div>';
+    return;
+  }
+  const a=db.activities.find(x=>x.id===next.activityId);
+  if(!a){el.innerHTML='';return}
+  el.innerHTML=`
+    <div class="upnext">
+      <div class="ico">${esc(ICONS[a.category]||'⭐')}</div>
+      <div class="tif"><div class="name">Up next: ${esc(a.name)}</div><div class="meta">${next.startTime?next.startTime+' · ':''}${next.duration||a.duration} min</div></div>
+      <button class="ttrb" onclick="openTimer(${tasks.indexOf(next)},event)">▶</button>
+    </div>
+  `;
 }
 
 function renderPKids(){
@@ -1075,7 +1166,10 @@ function renderSched(){
           <div class="tnm">${esc(a.name)}${t.templateId?'<span class="badge">Weekly</span>':''}</div>
           <div class="tmt">${t.startTime?t.startTime+' · ':''}${t.duration} min</div>
         </div>
-        <button class="iconbtn danger" onclick="removeSchedTask(${i},event)" aria-label="Remove task" title="Remove task">🗑</button>
+        <div class="row-actions">
+          <button class="iconbtn" onclick="openEditSchedTask(${i},event)" aria-label="Edit task" title="Edit task">✎</button>
+          <button class="iconbtn danger" onclick="removeSchedTask(${i},event)" aria-label="Remove task" title="Remove task">🗑</button>
+        </div>
       `;
       sl.appendChild(d);
     });
@@ -1099,22 +1193,56 @@ function renderSched(){
 }
 
 function openSAdd(actId,e){
-  e&&e.stopPropagation();pendActId=actId;
+  e&&e.stopPropagation();pendActId=actId;editSchedIndex=null;
   const a=db.activities.find(x=>x.id===actId);
+  document.getElementById('m-sadd-title').textContent='Add to Schedule';
   document.getElementById('sadd-name').textContent=`${ICONS[a.category]||'⭐'} ${a.name}`;
   document.getElementById('sadd-dur').value=a.duration;
   document.getElementById('sadd-time').value='';
   document.getElementById('sadd-weekly').checked=false;
+  document.getElementById('sadd-weekly').disabled=false;
   document.getElementById('sadd-weekday').textContent=dayName(schedDate);
+  document.getElementById('sadd-save').textContent='Add Task';
   openM('m-sadd');
 }
 
-function addToSched(){
+function openEditSchedTask(i,e){
+  e&&e.stopPropagation();
+  const task=getTasksFor(schedKid,schedDate)[i];
+  if(!task)return;
+  const a=db.activities.find(x=>x.id===task.activityId);if(!a)return;
+  pendActId=task.activityId;editSchedIndex=i;
+  document.getElementById('m-sadd-title').textContent='Edit Scheduled Task';
+  document.getElementById('sadd-name').textContent=`${ICONS[a.category]||'⭐'} ${a.name}`;
+  document.getElementById('sadd-dur').value=task.duration||a.duration;
+  document.getElementById('sadd-time').value=task.startTime||'';
+  document.getElementById('sadd-weekly').checked=!!task.templateId;
+  document.getElementById('sadd-weekly').disabled=!!task.templateId;
+  document.getElementById('sadd-weekday').textContent=dayName(schedDate);
+  document.getElementById('sadd-save').textContent='Save Changes';
+  openM('m-sadd');
+}
+
+function saveSchedTask(){
   const dur=clamp(parseInt(document.getElementById('sadd-dur').value)||20,1,180);
   const time=document.getElementById('sadd-time').value;
   const repeat=document.getElementById('sadd-weekly').checked;
   const key=dateKey(schedKid,schedDate);
   if(!db.schedules[key])db.schedules[key]=[];
+  if(editSchedIndex!==null){
+    const task=db.schedules[key][editSchedIndex];if(!task)return;
+    task.duration=dur;task.startTime=time||null;
+    if(task.templateId){
+      const wk=weeklyKey(schedKid,schedDate);
+      const tpl=(db.weekly[wk]||[]).find(t=>t.id===task.templateId);
+      if(tpl){tpl.duration=dur;tpl.startTime=time||null}
+      Object.keys(db.schedules).forEach(k=>{
+        db.schedules[k].forEach(t=>{if(t.templateId===task.templateId){t.duration=dur;t.startTime=time||null}});
+      });
+    }
+    recordProgress(schedKid,schedDate);
+    saveDB();closeM('m-sadd');renderSched();beep(523,.1);return;
+  }
   if(repeat){
     const wk=weeklyKey(schedKid,schedDate);
     db.weekly[wk]=db.weekly[wk]||[];
