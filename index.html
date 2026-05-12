@@ -524,9 +524,17 @@ let schedKid=null,schedDate=null;
 let addKidAv=AVATARS[0],addKidTheme='purple';
 let authMode='in',sb=null,parentSession=null,syncTimer=null,syncing=false;
 const BACKEND_KEY='ontime-backend';
+const DEFAULT_BACKEND={
+  url:'https://tpqltdijfsvpekrsjeyc.supabase.co',
+  key:'sb_publishable_m113WyrO3EXKmp-EfgzC2A_qLlk24Ld'
+};
 
 function loadBackendConfig(){
-  try{return JSON.parse(localStorage.getItem(BACKEND_KEY)||'{}')}catch(e){return{}}
+  try{
+    const saved=JSON.parse(localStorage.getItem(BACKEND_KEY)||'{}');
+    if(saved.url&&saved.key)return saved;
+  }catch(e){}
+  return DEFAULT_BACKEND;
 }
 let backendConfig=loadBackendConfig();
 
