@@ -47,12 +47,27 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 .fg{margin-bottom:14px}
 .fg label{display:block;font-size:.82rem;font-weight:600;margin-bottom:5px;color:var(--muted)}
-input[type=text],input[type=number],input[type=date],input[type=time],select{
+input[type=text],input[type=password],input[type=number],input[type=date],input[type=time],select{
   width:100%;padding:11px 14px;border:2px solid #eee;border-radius:11px;
   font-size:.95rem;font-family:inherit;background:var(--card);color:var(--text);
   outline:none;transition:border-color .2s
 }
 input:focus,select:focus{border-color:var(--p)}
+.hint{font-size:.82rem;color:var(--muted);line-height:1.45}
+.msg{font-size:.86rem;line-height:1.45;margin-top:10px;text-align:center;min-height:20px}
+.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}
+.syncbar{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.8rem;color:var(--muted);margin-bottom:14px}
+.syncdot{width:9px;height:9px;border-radius:50%;background:var(--warn);display:inline-block;margin-right:5px}
+.syncdot.on{background:var(--ok)}.syncdot.off{background:var(--muted)}
+.tabs{display:flex;background:#eee;border-radius:999px;padding:3px;margin-bottom:16px}
+.tab{flex:1;border:none;background:transparent;border-radius:999px;padding:9px;font-weight:700;color:var(--muted);cursor:pointer}
+.tab.on{background:var(--card);color:var(--p);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.progress-list{display:grid;gap:10px}
+.pstat{background:var(--card);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:13px}
+.pstat .top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.pstat .who{font-weight:700;flex:1}
+.pbar{height:8px;border-radius:999px;background:#eee;overflow:hidden}
+.pbar span{display:block;height:100%;background:var(--p);border-radius:inherit}
 
 .stl{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
 
@@ -185,7 +200,7 @@ input:focus,select:focus{border-color:var(--p)}
 <div id="s-home" class="screen on">
   <div class="hdr" style="justify-content:space-between">
     <span style="font-size:1.45rem;font-weight:800">⏰ On Time!</span>
-    <button class="hact" onclick="goPin()">Parent Mode</button>
+    <button class="hact" onclick="goParentEntry()">Parent Mode</button>
   </div>
   <div class="cnt">
     <div class="stl">Who's checking in today?</div>
@@ -194,6 +209,35 @@ input:focus,select:focus{border-color:var(--p)}
       <div class="ei">👨‍👩‍👧</div>
       <div>No profiles yet!</div>
       <div style="font-size:.82rem;margin-top:4px">Ask a parent to set up your profile.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PARENT LOGIN -->
+<div id="s-auth" class="screen">
+  <div class="hdr">
+    <button class="hbk" onclick="go('home')">←</button>
+    <h1>Parent Login</h1>
+  </div>
+  <div class="cnt">
+    <div class="card">
+      <div class="stl">Cloud Sync</div>
+      <div class="hint">Connect a Supabase project once, then parents can sign in and see kids' progress from any device.</div>
+      <div class="fg mt2"><label>Supabase URL</label><input type="text" id="sb-url" placeholder="https://your-project.supabase.co"></div>
+      <div class="fg"><label>Anon public key</label><input type="text" id="sb-key" placeholder="Paste your anon key"></div>
+      <button class="btn bo bbl" onclick="saveBackendConfig()">Save Backend Settings</button>
+      <div id="cfg-msg" class="msg"></div>
+    </div>
+    <div class="card">
+      <div class="tabs">
+        <button id="tab-in" class="tab on" onclick="setAuthMode('in')">Sign In</button>
+        <button id="tab-up" class="tab" onclick="setAuthMode('up')">Create Account</button>
+      </div>
+      <div class="fg"><label>Email</label><input type="text" id="auth-email" autocomplete="email" placeholder="parent@example.com"></div>
+      <div class="fg"><label>Password</label><input type="password" id="auth-pass" autocomplete="current-password" placeholder="At least 6 characters"></div>
+      <button id="auth-btn" class="btn bp bbl" onclick="submitAuth()">Sign In</button>
+      <button class="btn bo bbl mt2" onclick="goPin()">Use Local PIN Instead</button>
+      <div id="auth-msg" class="msg"></div>
     </div>
   </div>
 </div>
@@ -293,6 +337,14 @@ input:focus,select:focus{border-color:var(--p)}
     <button class="hact" onclick="go('psettings')">⚙️</button>
   </div>
   <div class="cnt">
+    <div class="syncbar">
+      <span><span id="sync-dot" class="syncdot off"></span><span id="sync-text">Local mode</span></span>
+      <button id="signout-btn" class="hact" style="display:none;background:var(--p)" onclick="signOutParent()">Sign Out</button>
+    </div>
+    <div class="stl">Today's Progress</div>
+    <div id="progress-list" class="progress-list"></div>
+    <div class="dvd"></div>
+
     <div class="fb"><div class="stl" style="margin-bottom:0">Profiles</div>
       <button class="btn bp bsm" onclick="openAddKid()">+ Add Kid</button></div>
     <div id="p-kids" class="mt2"></div>
@@ -333,6 +385,15 @@ input:focus,select:focus{border-color:var(--p)}
     <h1>Settings</h1>
   </div>
   <div class="cnt">
+    <div class="card">
+      <div class="stl">Backend</div>
+      <div class="hint">Use Supabase for parent login and cloud sync. The app still works offline with the local PIN.</div>
+      <div class="fg mt2"><label>Supabase URL</label><input type="text" id="set-sb-url" placeholder="https://your-project.supabase.co"></div>
+      <div class="fg"><label>Anon public key</label><input type="text" id="set-sb-key" placeholder="Paste your anon key"></div>
+      <button class="btn bp bbl" onclick="saveBackendConfig(true)">Save Backend Settings</button>
+      <button class="btn bo bbl mt2" onclick="syncNow()">Sync Now</button>
+      <div id="set-cfg-msg" class="msg"></div>
+    </div>
     <div class="card">
       <div class="stl">Change PIN</div>
       <div class="fg"><label>Current PIN</label><input type="number" id="cp-cur" placeholder="Current 4-digit PIN"></div>
@@ -420,6 +481,7 @@ input:focus,select:focus{border-color:var(--p)}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const ICONS={Homework:'📚',Reading:'📖',Music:'🎵',Sports:'⚽',Chores:'🧹','Self-Care':'🧼',Other:'⭐'};
 const THEMES=['purple','blue','green','orange','pink','red','teal'];
@@ -450,13 +512,23 @@ function loadDB(){
   try{const r=localStorage.getItem('ontime');if(r)return JSON.parse(r)}catch(e){}
   return{pin:'1234',kids:[],activities:DEFAULT_ACTS,schedules:{}};
 }
-function saveDB(){localStorage.setItem('ontime',JSON.stringify(db))}
+function saveDB(){
+  localStorage.setItem('ontime',JSON.stringify(db));
+  queueCloudSave();
+}
 let db=loadDB();
 
 let kidId=null,pinBuf='',tSec=0,tTotal=0,tRunning=false,tIv=null;
 let curTimerTask=null,pendActId=null,editActId=null,editKidId=null;
 let schedKid=null,schedDate=null;
 let addKidAv=AVATARS[0],addKidTheme='purple';
+let authMode='in',sb=null,parentSession=null,syncTimer=null,syncing=false;
+const BACKEND_KEY='ontime-backend';
+
+function loadBackendConfig(){
+  try{return JSON.parse(localStorage.getItem(BACKEND_KEY)||'{}')}catch(e){return{}}
+}
+let backendConfig=loadBackendConfig();
 
 let actx=null;
 function getActx(){return actx||(actx=new(window.AudioContext||window.webkitAudioContext)())}
@@ -478,6 +550,7 @@ function go(scr){
   else if(scr==='kid')renderKid();
   else if(scr==='parent')renderParent();
   else if(scr==='sched')renderSched();
+  else if(scr==='auth'||scr==='psettings')fillBackendFields();
 }
 
 function applyTheme(el,t){el.setAttribute('data-theme',t||'purple')}
@@ -488,6 +561,113 @@ function esc(v){
   }[ch]));
 }
 function clamp(n,min,max){return Math.min(max,Math.max(min,n))}
+
+function hasBackendConfig(){return !!(backendConfig.url&&backendConfig.key)}
+function setMsg(id,text,type=''){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;el.className='msg '+type;
+}
+function fillBackendFields(){
+  ['sb-url','set-sb-url'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=backendConfig.url||''});
+  ['sb-key','set-sb-key'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=backendConfig.key||''});
+}
+function initSupabase(){
+  if(!hasBackendConfig()||!window.supabase)return null;
+  sb=window.supabase.createClient(backendConfig.url,backendConfig.key);
+  return sb;
+}
+function updateSyncStatus(text,type='off'){
+  const dot=document.getElementById('sync-dot'),label=document.getElementById('sync-text'),signout=document.getElementById('signout-btn');
+  if(dot){dot.className='syncdot '+type}
+  if(label){label.textContent=text}
+  if(signout){signout.style.display=parentSession?'inline-flex':'none'}
+}
+function goParentEntry(){
+  fillBackendFields();
+  if(parentSession){go('parent');return}
+  if(hasBackendConfig()){go('auth');return}
+  go('auth');
+}
+function setAuthMode(mode){
+  authMode=mode;
+  document.getElementById('tab-in').classList.toggle('on',mode==='in');
+  document.getElementById('tab-up').classList.toggle('on',mode==='up');
+  document.getElementById('auth-btn').textContent=mode==='in'?'Sign In':'Create Account';
+  setMsg('auth-msg','');
+}
+function saveBackendConfig(fromSettings=false){
+  const url=(document.getElementById(fromSettings?'set-sb-url':'sb-url')?.value||'').trim();
+  const key=(document.getElementById(fromSettings?'set-sb-key':'sb-key')?.value||'').trim();
+  const msgId=fromSettings?'set-cfg-msg':'cfg-msg';
+  if(!url||!key){setMsg(msgId,'Add both the Supabase URL and anon key.','bad');return}
+  backendConfig={url,key};
+  localStorage.setItem(BACKEND_KEY,JSON.stringify(backendConfig));
+  initSupabase();fillBackendFields();
+  setMsg(msgId,'Backend settings saved.','ok');
+}
+async function submitAuth(){
+  if(!hasBackendConfig())saveBackendConfig(false);
+  if(!initSupabase()){setMsg('auth-msg','Backend is not configured yet.','bad');return}
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-pass').value;
+  if(!email||!password){setMsg('auth-msg','Enter an email and password.','bad');return}
+  setMsg('auth-msg',authMode==='in'?'Signing in...':'Creating account...');
+  const res=authMode==='in'
+    ?await sb.auth.signInWithPassword({email,password})
+    :await sb.auth.signUp({email,password});
+  if(res.error){setMsg('auth-msg',res.error.message,'bad');return}
+  parentSession=res.data.session;
+  if(!parentSession){
+    setMsg('auth-msg','Account created. Check your email if Supabase asks for confirmation.','ok');
+    return;
+  }
+  await loadCloudState();
+  setMsg('auth-msg','Signed in.','ok');
+  go('parent');
+}
+async function signOutParent(){
+  if(sb)await sb.auth.signOut();
+  parentSession=null;updateSyncStatus('Local mode','off');go('home');
+}
+function queueCloudSave(){
+  if(!parentSession||!sb||syncing)return;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(()=>pushCloudState(),600);
+}
+async function pushCloudState(){
+  if(!parentSession||!sb)return;
+  syncing=true;updateSyncStatus('Syncing...','');
+  const payload={
+    parent_id:parentSession.user.id,
+    data:db,
+    updated_at:new Date().toISOString()
+  };
+  const {error}=await sb.from('parent_state').upsert(payload,{onConflict:'parent_id'});
+  syncing=false;
+  updateSyncStatus(error?'Sync failed':'Cloud synced',error?'off':'on');
+  if(error)console.warn(error.message);
+}
+async function loadCloudState(){
+  if(!parentSession||!sb)return;
+  updateSyncStatus('Loading cloud data...','');
+  const {data,error}=await sb.from('parent_state').select('data').eq('parent_id',parentSession.user.id).maybeSingle();
+  if(error){updateSyncStatus('Cloud load failed','off');console.warn(error.message);return}
+  if(data?.data){
+    db=data.data;
+    localStorage.setItem('ontime',JSON.stringify(db));
+  } else {
+    await pushCloudState();
+  }
+  updateSyncStatus('Cloud synced','on');
+}
+async function syncNow(){
+  if(!initSupabase()){setMsg('set-cfg-msg','Backend is not configured yet.','bad');return}
+  const {data}=await sb.auth.getSession();
+  parentSession=data.session;
+  if(!parentSession){setMsg('set-cfg-msg','Sign in first, then sync.','bad');go('auth');return}
+  await pushCloudState();
+  setMsg('set-cfg-msg','Synced.','ok');
+}
 
 function renderHome(){
   const g=document.getElementById('pgrid'),n=document.getElementById('no-kids');
@@ -667,8 +847,34 @@ function checkPin(){
 }
 
 function renderParent(){
-  renderPKids();renderPActs();renderSBKids();
+  updateSyncStatus(parentSession?'Cloud synced':hasBackendConfig()?'Sign in to sync':'Local mode',parentSession?'on':'off');
+  renderProgress();renderPKids();renderPActs();renderSBKids();
   document.getElementById('sb-date').value=today();
+}
+
+function renderProgress(){
+  const el=document.getElementById('progress-list');
+  if(!el)return;
+  el.innerHTML='';
+  if(!db.kids.length){el.innerHTML='<div class="ec" style="padding:16px 0"><div>Add a kid to start tracking progress.</div></div>';return}
+  db.kids.forEach(k=>{
+    const tasks=db.schedules[`${k.id}-${today()}`]||[];
+    const done=tasks.filter(t=>t.completed).length;
+    const pct=tasks.length?Math.round((done/tasks.length)*100):0;
+    const d=document.createElement('div');
+    d.className='pstat';
+    d.style.setProperty('--p',tc(k.theme));
+    d.innerHTML=`
+      <div class="top">
+        <div style="font-size:1.35rem">${esc(k.avatar||'🌟')}</div>
+        <div class="who">${esc(k.name)}</div>
+        <div class="hint">${done}/${tasks.length}</div>
+      </div>
+      <div class="pbar"><span style="width:${pct}%"></span></div>
+      <div class="hint mt1">${tasks.length?pct+'% complete':'No tasks scheduled today'}</div>
+    `;
+    el.appendChild(d);
+  });
 }
 
 function renderPKids(){
@@ -941,7 +1147,18 @@ document.querySelectorAll('.mbk').forEach(b=>
   b.addEventListener('click',e=>{if(e.target===b)b.style.display='none'})
 );
 
-renderHome();
+async function initApp(){
+  fillBackendFields();
+  if(initSupabase()){
+    sb.auth.onAuthStateChange((_event,session)=>{parentSession=session});
+    const {data}=await sb.auth.getSession();
+    parentSession=data.session;
+    if(parentSession)await loadCloudState();
+  }
+  renderHome();
+}
+
+initApp();
 </script>
 </body>
 </html>
